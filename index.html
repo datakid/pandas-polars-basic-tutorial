@@ -1,0 +1,2342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pandas 3.0 & Polars 1.x — 2026 Complete Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f7;
+  --bg-blur: rgba(245, 245, 247, 0.7);
+  --surface: #ffffff;
+  --surface-2: #ececef;
+  --surface-3: #e3e3e8;
+  --border: #dcdce0;
+  --border-subtle: #ebebf0;
+  --text: #1d1d1f;
+  --text-2: #515154;
+  --text-3: #86868b;
+  --pd: #e85d04;
+  --pd-dim: rgba(232, 93, 4, 0.08);
+  --pl: #0096c7;
+  --pl-dim: rgba(0, 150, 199, 0.08);
+  --accent: #6f5bff;
+  --accent-dim: rgba(111, 91, 255, 0.08);
+  --green: #2d8a37;
+  --yellow: #c99700;
+  --code-bg: #ffffff;
+  --shadow: 0 4px 24px -4px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+}
+
+[data-theme="dark"] {
+  --bg: #000000;
+  --bg-blur: rgba(0, 0, 0, 0.6);
+  --surface: #161618;
+  --surface-2: #1c1c1e;
+  --surface-3: #2c2c2e;
+  --border: #2a2a2c;
+  --border-subtle: #222225;
+  --text: #f5f5f7;
+  --text-2: #aeaeb2;
+  --text-3: #636366;
+  --pd: #ff7f45;
+  --pd-dim: rgba(255, 127, 69, 0.12);
+  --pl: #4cc9f0;
+  --pl-dim: rgba(76, 201, 240, 0.12);
+  --accent: #a78bfa;
+  --accent-dim: rgba(167, 139, 250, 0.12);
+  --green: #4ade80;
+  --yellow: #fbbf24;
+  --code-bg: #0e0e10;
+  --shadow: 0 4px 24px -4px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.2);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+.progress-bar { position: fixed; top: 0; left: 0; height: 2px; width: 0%; background: var(--accent); z-index: 1000; transition: width 0.1s linear; }
+
+.top-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--bg-blur);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease, border-color 0.3s ease;
+}
+.top-bar.hidden { transform: translateY(-100%); }
+.top-bar-inner { max-width: 1100px; margin: 0 auto; padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+
+.brand { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; }
+.brand-dots { display: flex; gap: 4px; }
+.brand-dot { width: 8px; height: 8px; border-radius: 50%; }
+.brand-text { font-weight: 600; font-size: 0.95rem; letter-spacing: -0.02em; color: var(--text); }
+.brand-sub { font-weight: 400; color: var(--text-3); margin-left: 0.4rem; }
+
+.controls { display: flex; align-items: center; gap: 0.75rem; }
+
+.filters { display: none; gap: 0.1rem; background: var(--surface-2); padding: 0.2rem; border-radius: 12px; }
+@media(min-width: 768px) { .filters { display: flex; } }
+.filter-btn {
+  padding: 0.35rem 0.85rem; border-radius: 10px; font-size: 0.8rem; font-weight: 500;
+  border: none; background: transparent; color: var(--text-3); cursor: pointer;
+  transition: all 0.2s ease; font-family: inherit;
+}
+.filter-btn:hover { color: var(--text); }
+.filter-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.filter-btn.active.pd-active { color: var(--pd); }
+.filter-btn.active.pl-active { color: var(--pl); }
+
+.icon-btn {
+  width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+  background: var(--surface-2); border: 1px solid transparent; border-radius: 10px;
+  cursor: pointer; color: var(--text-2); transition: all 0.2s ease;
+}
+.icon-btn:hover { background: var(--surface-3); color: var(--text); }
+
+.search-trigger {
+  display: flex; align-items: center; gap: 0.5rem; height: 36px;
+  background: var(--surface-2); border: 1px solid transparent; padding: 0 0.8rem;
+  border-radius: 10px; cursor: pointer; color: var(--text-3); transition: all 0.2s ease;
+}
+.search-trigger:hover { background: var(--surface-3); color: var(--text); }
+.search-trigger span { font-size: 0.85rem; font-weight: 500; }
+.kbd { font-family: "JetBrains Mono", monospace; font-size: 0.7rem; padding: 0.15rem 0.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text-2); }
+
+.main-container { max-width: 850px; margin: 0 auto; padding: 8rem 1.5rem 6rem; }
+
+.hero { text-align: center; margin-bottom: 6rem; }
+.hero-eyebrow { font-family: "JetBrains Mono", monospace; font-size: 0.75rem; color: var(--accent); letter-spacing: 0.05em; margin-bottom: 1.5rem; display: inline-block; padding: 0.3rem 0.8rem; background: var(--accent-dim); border-radius: 99px; font-weight: 500; }
+.hero h1 { font-family: "Instrument Serif", serif; font-size: clamp(2.8rem, 8vw, 5rem); font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 1.5rem; color: var(--text); }
+.hero h1 em { font-style: italic; color: var(--text-2); }
+.hero h1 .pd-text { color: var(--pd); }
+.hero h1 .pl-text { color: var(--pl); }
+.hero p { font-size: 1.1rem; color: var(--text-2); max-width: 620px; margin: 0 auto; line-height: 1.6; }
+.hero-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 2rem; }
+.hero-pill { padding: 0.4rem 0.9rem; border-radius: 99px; font-size: 0.75rem; font-family: "JetBrains Mono", monospace; border: 1px solid var(--border); background: var(--surface); color: var(--text-2); }
+
+section { margin-bottom: 5rem; }
+section .sec-content { opacity: 0; transform: translateY(15px); transition: opacity 0.6s ease, transform 0.6s ease; }
+section.visible .sec-content { opacity: 1; transform: translateY(0); }
+
+.sec-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 2rem; }
+.sec-num { font-family: "JetBrains Mono", monospace; font-size: 0.8rem; color: var(--text-3); font-weight: 500; }
+.sec-title { font-family: "Instrument Serif", serif; font-size: 2.2rem; font-weight: 400; letter-spacing: -0.02em; color: var(--text); flex: 1; line-height: 1.1; }
+.sec-desc { color: var(--text-2); font-size: 1rem; margin-bottom: 2rem; line-height: 1.7; font-weight: 400; }
+section p { color: var(--text-2); margin-bottom: 1rem; font-size: 0.95rem; line-height: 1.75; }
+
+h3 { font-size: 1.1rem; font-weight: 600; margin: 2.5rem 0 1rem; color: var(--text); display: flex; align-items: center; gap: 0.5rem; letter-spacing: -0.01em; }
+h3 .h3n { font-size: 0.7rem; font-family: "JetBrains Mono", monospace; color: var(--text-3); font-weight: 500; background: var(--surface-2); padding: 0.2rem 0.5rem; border-radius: 6px; }
+strong { color: var(--text); font-weight: 600; }
+code { font-family: "JetBrains Mono", monospace; font-size: 0.85em; color: var(--accent); background: var(--accent-dim); padding: 0.15em 0.4em; border-radius: 4px; }
+pre code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0 2rem; }
+@media(max-width: 768px) { .compare { grid-template-columns: 1fr; } }
+
+.code-pane { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+.code-pane:hover { border-color: var(--text-3); box-shadow: var(--shadow); }
+.code-label { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; border-bottom: 1px solid var(--border-subtle); background: var(--surface-2); }
+.lib-tag { font-weight: 600; font-size: 0.75rem; letter-spacing: 0.02em; display: flex; align-items: center; gap: 0.4rem; }
+.lib-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+.pd-tag { color: var(--pd); } .pd-tag::before { background: var(--pd); }
+.pl-tag { color: var(--pl); } .pl-tag::before { background: var(--pl); }
+.copy-btn { cursor: pointer; background: transparent; border: none; color: var(--text-3); font-family: "JetBrains Mono", monospace; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 6px; transition: all 0.2s ease; display: flex; align-items: center; gap: 0.3rem; }
+.copy-btn:hover { color: var(--text); background: var(--surface-3); }
+.copy-btn.copied { color: var(--green); }
+
+pre { padding: 1rem 1.2rem; overflow-x: auto; font-family: "JetBrains Mono", monospace; font-size: 0.8rem; line-height: 1.7; margin: 0; tab-size: 4; color: var(--text); }
+.kw { color: #7c3aed; } .fn { color: #2563eb; } .st { color: #16a34a; } .num { color: #ea580c; } .attr { color: #c99700; }
+[data-theme="dark"] .kw { color: #c792ea; } [data-theme="dark"] .fn { color: #82aaff; } [data-theme="dark"] .st { color: #c3e88d; } [data-theme="dark"] .num { color: #f78c6c; } [data-theme="dark"] .attr { color: #ffcb6b; }
+
+.callout { margin: 1.5rem 0; padding: 1.2rem 1.5rem; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); position: relative; overflow: hidden; }
+.callout::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.callout p { margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-2); }
+.callout.tip::before { background: var(--accent); } .callout.tip strong { color: var(--accent); }
+.callout.warn::before { background: var(--yellow); } .callout.warn strong { color: var(--yellow); }
+.callout.info::before { background: var(--pl); } .callout.info strong { color: var(--pl); }
+.callout.new::before { background: var(--green); } .callout.new strong { color: var(--green); }
+
+.diff-table, .param-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0 2rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--surface); }
+.diff-table th, .param-table th { padding: 0.8rem 1rem; background: var(--surface-2); color: var(--text-2); font-weight: 600; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
+.diff-table td, .param-table td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border-subtle); color: var(--text-2); vertical-align: top; }
+.diff-table tr:last-child td, .param-table tr:last-child td { border-bottom: none; }
+.diff-table tr:hover td, .param-table tr:hover td { background: var(--surface-2); }
+.diff-table code, .param-table code { font-size: 0.78rem; }
+.tc-pd { color: var(--pd); font-weight: 600; } .tc-pl { color: var(--pl); font-weight: 600; }
+.param-table td:first-child { font-family: "JetBrains Mono", monospace; color: var(--accent); white-space: nowrap; font-size: 0.8rem; }
+.param-table td:nth-child(2) { color: var(--text-3); font-family: "JetBrains Mono", monospace; font-size: 0.75rem; }
+
+.install-grid, .when-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media(max-width: 768px) { .install-grid, .when-grid { grid-template-columns: 1fr; } }
+.install-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
+.install-card h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
+.install-card pre { background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.8rem; margin: 0; font-size: 0.75rem; }
+
+.when-card { border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; background: var(--surface); }
+.when-card.pd-card { border-top: 3px solid var(--pd); }
+.when-card.pl-card { border-top: 3px solid var(--pl); }
+.when-card h4 { font-weight: 600; margin-bottom: 1rem; font-size: 1.05rem; }
+.when-card h4.pd-title { color: var(--pd); }
+.when-card h4.pl-title { color: var(--pl); }
+.when-card ul { list-style: none; display: grid; gap: 0.6rem; }
+.when-card ul li { color: var(--text-2); padding-left: 1.5rem; position: relative; font-size: 0.88rem; line-height: 1.5; }
+.when-card ul li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+
+.bench { display: grid; gap: 0.5rem; margin: 1.5rem 0; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
+.bench-row { display: flex; align-items: center; gap: 1rem; font-size: 0.8rem; }
+.bench-label { width: 120px; flex-shrink: 0; color: var(--text-2); font-size: 0.78rem; }
+.bench-track { flex: 1; height: 8px; background: var(--surface-3); border-radius: 99px; overflow: hidden; }
+.bench-pd, .bench-pl { height: 100%; border-radius: 99px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+.bench-pd { background: var(--pd); }
+.bench-pl { background: var(--pl); }
+.bench-val { width: 45px; text-align: right; font-family: "JetBrains Mono", monospace; font-size: 0.72rem; color: var(--text-2); }
+.bench-legend { display: flex; gap: 1.5rem; margin-bottom: 0.8rem; font-size: 0.75rem; color: var(--text-2); }
+.bench-legend span { display: flex; align-items: center; gap: 0.4rem; }
+.bench-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.footer { text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-subtle); color: var(--text-3); font-size: 0.8rem; }
+
+.cmdk-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: flex-start; justify-content: center; padding-top: 15vh; opacity: 0; transition: opacity 0.2s ease; }
+.cmdk-overlay.active { display: flex; opacity: 1; }
+.cmdk-modal { width: 90%; max-width: 600px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 30px 80px rgba(0,0,0,0.2); overflow: hidden; transform: scale(0.98); transition: transform 0.2s ease; }
+.cmdk-overlay.active .cmdk-modal { transform: scale(1); }
+.cmdk-input-wrap { display: flex; align-items: center; padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border-subtle); }
+.cmdk-input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-size: 1.1rem; font-family: inherit; font-weight: 400; }
+.cmdk-input::placeholder { color: var(--text-3); }
+.cmdk-results { max-height: 50vh; overflow-y: auto; padding: 0.5rem; }
+.cmdk-result { display: flex; align-items: center; gap: 1rem; padding: 0.8rem 1rem; border-radius: 10px; cursor: pointer; transition: background 0.1s ease; }
+.cmdk-result:hover, .cmdk-result.selected { background: var(--surface-2); }
+.cmdk-res-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--surface-3); font-size: 0.75rem; color: var(--text-2); flex-shrink: 0; font-weight: 600; font-family: "JetBrains Mono", monospace; }
+.cmdk-res-icon.pd { color: var(--pd); background: var(--pd-dim); }
+.cmdk-res-icon.pl { color: var(--pl); background: var(--pl-dim); }
+.cmdk-res-content { flex: 1; min-width: 0; }
+.cmdk-res-title { font-size: 0.9rem; color: var(--text); margin-bottom: 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.cmdk-res-desc { font-size: 0.75rem; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmdk-res-title mark, .cmdk-res-desc mark { background: transparent; color: var(--accent); font-weight: 700; border-radius: 2px; padding: 0; }
+.cmdk-empty { padding: 2rem; text-align: center; color: var(--text-3); font-size: 0.9rem; }
+
+.cmdk-fab { position: fixed; bottom: 2rem; right: 2rem; width: 52px; height: 52px; border-radius: 16px; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 90; box-shadow: 0 10px 30px rgba(111, 91, 255, 0.3); transition: transform 0.2s ease, background 0.2s ease; }
+.cmdk-fab:hover { transform: translateY(-2px) scale(1.05); }
+.cmdk-fab svg { width: 22px; height: 22px; }
+@media(max-width: 768px) { .cmdk-fab { bottom: 1rem; right: 1rem; width: 48px; height: 48px; border-radius: 14px; } }
+
+.highlight-flash { animation: flash 1.2s ease; }
+@keyframes flash { 0% { box-shadow: 0 0 0 0 rgba(111, 91, 255, 0.4); } 50% { box-shadow: 0 0 0 8px rgba(111, 91, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(111, 91, 255, 0); } }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress-bar"></div>
+
+<div class="top-bar" id="top-bar">
+  <div class="top-bar-inner">
+    <div class="brand" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+      <div class="brand-dots">
+        <div class="brand-dot" style="background:var(--pd)"></div>
+        <div class="brand-dot" style="background:var(--accent)"></div>
+        <div class="brand-dot" style="background:var(--pl)"></div>
+      </div>
+      <div class="brand-text">2026 Reference <span class="brand-sub">Pandas & Polars</span></div>
+    </div>
+    <div class="controls">
+      <div class="filters">
+        <button class="filter-btn active" onclick="setFilter('all', this)">Both</button>
+        <button class="filter-btn" onclick="setFilter('pd', this)">Pandas</button>
+        <button class="filter-btn" onclick="setFilter('pl', this)">Polars</button>
+      </div>
+      <div class="search-trigger" onclick="openCmdk()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <span>Search</span>
+        <span class="kbd">⌘K</span>
+      </div>
+      <div class="icon-btn" id="theme-toggle" onclick="toggleTheme()">
+        <svg id="theme-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main-container">
+
+<div class="hero">
+  <div class="hero-eyebrow">2026 Edition · Updated July 8, 2026 · 20 Sections</div>
+  <h1><span class="pd-text">Pandas 3.0</span> <em>&</em> <span class="pl-text">Polars 1.x</span></h1>
+  <p>The complete 2026 reference — side-by-side patterns for every operation, from basic selection to streaming pipelines. Expanded window functions, full pivot coverage, type casting, custom UDFs, and the Polars lazy API.</p>
+  <div class="hero-pills">
+    <span class="hero-pill" style="color:var(--pd);border-color:var(--pd)">Pandas 3.0.3 · Jan 2026</span>
+    <span class="hero-pill" style="color:var(--pl);border-color:var(--pl)">Polars 1.39 · Apr 2026</span>
+    <span class="hero-pill" style="color:var(--accent);border-color:var(--accent)">Apache Arrow backend</span>
+    <span class="hero-pill" style="color:var(--green);border-color:var(--green)">Copy-on-Write default</span>
+    <span class="hero-pill" style="color:var(--yellow);border-color:var(--yellow)">LazyFrame.pivot new</span>
+  </div>
+</div>
+
+<section id="install">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">01</span>
+      <h2 class="sec-title">Installation & Setup</h2>
+    </div>
+    <p class="sec-desc">Both libraries install via pip. Polars ships with zero hard dependencies; Pandas benefits significantly from PyArrow for its new string backend and zero-copy conversions.</p>
+    <div class="install-grid">
+      <div class="install-card">
+        <h4 style="color:var(--pd)"><span style="width:8px;height:8px;border-radius:50%;background:var(--pd);display:inline-block"></span> Pandas 3.0</h4>
+        <pre>pip install "pandas>=3.0"
+pip install pyarrow</pre>
+        <p style="margin-top:.8rem;font-size:.8rem;color:var(--text-2)">PyArrow enables the native <code>str</code> dtype, zero-copy Arrow conversions, and GPU compute backend.</p>
+      </div>
+      <div class="install-card">
+        <h4 style="color:var(--pl)"><span style="width:8px;height:8px;border-radius:50%;background:var(--pl);display:inline-block"></span> Polars 1.x</h4>
+        <pre>pip install "polars>=1.0"
+pip install "polars[all]"</pre>
+        <p style="margin-top:.8rem;font-size:.8rem;color:var(--text-2)"><code>polars[all]</code> adds S3/GCS/Azure I/O, timezone support, and the built-in SQL engine.</p>
+      </div>
+    </div>
+    <h3>Verify Installation</h3>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag" style="color:var(--text-2)"><span style="background:var(--text-2)"></span>Verify</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> polars <span class="kw">as</span> pl
+<span class="fn">print</span>(pd.__version__)
+<span class="fn">print</span>(pl.__version__)</pre>
+    </div>
+  </div>
+</section>
+
+<section id="dataframes">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">02</span>
+      <h2 class="sec-title">Creating DataFrames</h2>
+    </div>
+    <p class="sec-desc">Both share a dict-based constructor. Polars DataFrames are immutable and always thread-safe. Pandas 3.0 strings now default to the <code>str</code> dtype backed by PyArrow, not NumPy <code>object</code>.</p>
+    <h3>From a dict</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+df = pd.DataFrame({
+    <span class="st">"name"</span>:  [<span class="st">"Alice"</span>, <span class="st">"Bob"</span>, <span class="st">"Carol"</span>],
+    <span class="st">"age"</span>:   [<span class="num">28</span>, <span class="num">34</span>, <span class="num">22</span>],
+    <span class="st">"score"</span>: [<span class="num">91.5</span>, <span class="num">78.0</span>, <span class="num">95.2</span>],
+})
+df.dtypes
+df.shape
+df.columns.tolist()</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> polars <span class="kw">as</span> pl
+
+df = pl.DataFrame({
+    <span class="st">"name"</span>:  [<span class="st">"Alice"</span>, <span class="st">"Bob"</span>, <span class="st">"Carol"</span>],
+    <span class="st">"age"</span>:   [<span class="num">28</span>, <span class="num">34</span>, <span class="num">22</span>],
+    <span class="st">"score"</span>: [<span class="num">91.5</span>, <span class="num">78.0</span>, <span class="num">95.2</span>],
+})
+df.dtypes
+df.shape
+df.columns</pre>
+      </div>
+    </div>
+    <h3>From records / explicit schema</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>records = [
+    {<span class="st">"id"</span>: <span class="num">1</span>, <span class="st">"city"</span>: <span class="st">"London"</span>},
+    {<span class="st">"id"</span>: <span class="num">2</span>, <span class="st">"city"</span>: <span class="st">"Paris"</span>},
+]
+df = pd.DataFrame(records)
+df = pd.DataFrame(records).astype({<span class="st">"id"</span>: <span class="st">"int32"</span>})</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>records = [
+    {<span class="st">"id"</span>: <span class="num">1</span>, <span class="st">"city"</span>: <span class="st">"London"</span>},
+    {<span class="st">"id"</span>: <span class="num">2</span>, <span class="st">"city"</span>: <span class="st">"Paris"</span>},
+]
+df = pl.from_dicts(records)
+df = pl.DataFrame(
+    records,
+    schema={<span class="st">"id"</span>: pl.Int32, <span class="st">"city"</span>: pl.String},
+)</pre>
+      </div>
+    </div>
+    <h3>Inspection</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.shape
+df.head(<span class="num">5</span>)
+df.tail(<span class="num">3</span>)
+df.info()
+df.describe()
+df.dtypes
+df.memory_usage(deep=<span class="kw">True</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.shape
+df.head(<span class="num">5</span>)
+df.tail(<span class="num">3</span>)
+df.schema
+df.describe()
+df.dtypes
+df.estimated_size(<span class="st">"mb"</span>)</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="io">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">03</span>
+      <h2 class="sec-title">Reading & Writing Data</h2>
+    </div>
+    <p class="sec-desc">Polars uses <code>scan_*</code> for lazy reads — nothing loads until <code>.collect()</code>. Pandas reads eagerly. Parquet is the gold standard: columnar, compressed, dtype-preserving.</p>
+    <h3>CSV</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df = pd.read_csv(<span class="st">"data.csv"</span>)
+df = pd.read_csv(
+    <span class="st">"data.csv"</span>,
+    usecols=[<span class="st">"id"</span>, <span class="st">"amount"</span>],
+    dtype={<span class="st">"id"</span>: <span class="st">"int32"</span>},
+    parse_dates=[<span class="st">"created_at"</span>],
+    na_values=[<span class="st">"N/A"</span>, <span class="st">"—"</span>],
+    chunksize=<span class="num">100_000</span>,
+)
+df.to_csv(<span class="st">"out.csv"</span>, index=<span class="kw">False</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df = pl.read_csv(<span class="st">"data.csv"</span>)
+lf = pl.scan_csv(<span class="st">"data.csv"</span>)
+df = pl.read_csv(
+    <span class="st">"data.csv"</span>,
+    columns=[<span class="st">"id"</span>, <span class="st">"amount"</span>],
+    schema_overrides={<span class="st">"id"</span>: pl.Int32},
+    try_parse_dates=<span class="kw">True</span>,
+    null_values=[<span class="st">"N/A"</span>, <span class="st">"—"</span>],
+)
+df.write_csv(<span class="st">"out.csv"</span>)</pre>
+      </div>
+    </div>
+    <h3>Parquet</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df = pd.read_parquet(<span class="st">"data.parquet"</span>)
+df = pd.read_parquet(
+    <span class="st">"data.parquet"</span>,
+    columns=[<span class="st">"id"</span>, <span class="st">"amount"</span>],
+    filters=[(<span class="st">"region"</span>, <span class="st">"=="</span>, <span class="st">"EU"</span>)],
+)
+df.to_parquet(
+    <span class="st">"out.parquet"</span>,
+    compression=<span class="st">"zstd"</span>,
+    index=<span class="kw">False</span>,
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>lf = pl.scan_parquet(<span class="st">"data.parquet"</span>)
+lf = pl.scan_parquet(
+    <span class="st">"s3://bucket/events/year=*/**.parquet"</span>,
+    hive_partitioning=<span class="kw">True</span>,
+)
+df = pl.read_parquet(<span class="st">"data.parquet"</span>)
+df.write_parquet(<span class="st">"out.parquet"</span>, compression=<span class="st">"zstd"</span>)</pre>
+      </div>
+    </div>
+    <h3>JSON / NDJSON / Excel</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df = pd.read_json(<span class="st">"data.json"</span>)
+df = pd.read_json(<span class="st">"data.ndjson"</span>, lines=<span class="kw">True</span>)
+df = pd.read_excel(
+    <span class="st">"data.xlsx"</span>,
+    sheet_name=<span class="st">"Sales"</span>,
+    skiprows=<span class="num">1</span>,
+)
+df.to_excel(<span class="st">"out.xlsx"</span>, index=<span class="kw">False</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df = pl.read_json(<span class="st">"data.json"</span>)
+df = pl.read_ndjson(<span class="st">"data.ndjson"</span>)
+lf = pl.scan_ndjson(<span class="st">"data.ndjson"</span>)
+df = pl.read_excel(
+    <span class="st">"data.xlsx"</span>,
+    sheet_name=<span class="st">"Sales"</span>,
+)
+df.write_excel(<span class="st">"out.xlsx"</span>)</pre>
+      </div>
+    </div>
+    <div class="callout tip">
+      <p><strong>Parquet over CSV:</strong> A 1 GB CSV typically becomes ~90 MB Parquet with zstd, reads 15–30× faster, and preserves dtypes exactly. Both libraries push filters and column selection into the file reader — only the bytes you need are ever loaded.</p>
+    </div>
+  </div>
+</section>
+
+<section id="select">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">04</span>
+      <h2 class="sec-title">Selecting & Filtering</h2>
+    </div>
+    <p class="sec-desc">Polars uses a pure expression API — no <code>.loc</code>/<code>.iloc</code> confusion, no bracket ambiguity. Pandas 3.0 makes slicing fully safe with mandatory Copy-on-Write.</p>
+    <h3>Select columns</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"name"</span>]
+df[[<span class="st">"name"</span>, <span class="st">"score"</span>]]
+df.loc[:, <span class="st">"name"</span>:<span class="st">"score"</span>]
+df.iloc[:, <span class="num">0</span>]
+df.iloc[:, [<span class="num">0</span>, <span class="num">2</span>]]
+df.filter(regex=<span class="st">"^score"</span>)
+df.select_dtypes(include=<span class="st">"number"</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"name"</span>]
+df.select([<span class="st">"name"</span>, <span class="st">"score"</span>])
+df[:, <span class="num">0</span>]
+df.select(pl.first())
+df.select(pl.last())
+df.select(pl.col(<span class="st">"^score.*$"</span>))
+df.select(pl.col(pl.Int64, pl.Float64))</pre>
+      </div>
+    </div>
+    <h3>Filter rows</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[df[<span class="st">"age"</span>] > <span class="num">25</span>]
+df[(df[<span class="st">"age"</span>] > <span class="num">25</span>) &
+   (df[<span class="st">"score"</span>] >= <span class="num">90</span>)]
+df.query(<span class="st">"age > 25 and score >= 90"</span>)
+df[df[<span class="st">"city"</span>].isin([<span class="st">"Paris"</span>, <span class="st">"Lyon"</span>])]
+df[~df[<span class="st">"city"</span>].isin([<span class="st">"Paris"</span>, <span class="st">"Lyon"</span>])]
+df[df[<span class="st">"name"</span>].notna()]</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.filter(pl.col(<span class="st">"age"</span>) > <span class="num">25</span>)
+df.filter(
+    (pl.col(<span class="st">"age"</span>) > <span class="num">25</span>) &
+    (pl.col(<span class="st">"score"</span>) >= <span class="num">90</span>)
+)
+df.filter(
+    pl.col(<span class="st">"city"</span>).is_in([<span class="st">"Paris"</span>, <span class="st">"Lyon"</span>])
+)
+df.filter(
+    ~pl.col(<span class="st">"city"</span>).is_in([<span class="st">"Paris"</span>, <span class="st">"Lyon"</span>])
+)
+df.filter(pl.col(<span class="st">"name"</span>).is_not_null())</pre>
+      </div>
+    </div>
+    <h3>Slicing & sampling</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.iloc[<span class="num">5</span>:<span class="num">10</span>]
+df.head(<span class="num">100</span>)
+df.tail(<span class="num">50</span>)
+df.sample(n=<span class="num">500</span>, random_state=<span class="num">42</span>)
+df.sample(frac=<span class="num">0.1</span>, random_state=<span class="num">42</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.slice(<span class="num">5</span>, <span class="num">5</span>)
+df.head(<span class="num">100</span>)
+df.tail(<span class="num">50</span>)
+df.sample(n=<span class="num">500</span>, seed=<span class="num">42</span>)
+df.sample(fraction=<span class="num">0.1</span>, seed=<span class="num">42</span>)</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="transform">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">05</span>
+      <h2 class="sec-title">Transforming Columns</h2>
+    </div>
+    <p class="sec-desc">Polars' <code>with_columns</code> evaluates all expressions in parallel. Pandas 3.0's <code>assign</code> chains cleanly with Copy-on-Write — no more accidental mutations to the original DataFrame.</p>
+    <h3>Add / update columns</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"bonus"</span>] = df[<span class="st">"salary"</span>] * <span class="num">0.10</span>
+
+df = df.assign(
+    bonus  = <span class="kw">lambda</span> x: x[<span class="st">"salary"</span>] * <span class="num">0.10</span>,
+    grade  = <span class="kw">lambda</span> x: x[<span class="st">"score"</span>] // <span class="num">10</span>,
+    senior = <span class="kw">lambda</span> x: x[<span class="st">"age"</span>] >= <span class="num">40</span>,
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df = df.with_columns(
+    (pl.col(<span class="st">"salary"</span>) * <span class="num">0.10</span>).alias(<span class="st">"bonus"</span>),
+    (pl.col(<span class="st">"score"</span>) // <span class="num">10</span>).alias(<span class="st">"grade"</span>),
+    (pl.col(<span class="st">"age"</span>) >= <span class="num">40</span>).alias(<span class="st">"senior"</span>),
+)</pre>
+      </div>
+    </div>
+    <h3>Conditional logic</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+df[<span class="st">"tier"</span>] = np.where(
+    df[<span class="st">"revenue"</span>] > <span class="num">1000</span>, <span class="st">"High"</span>, <span class="st">"Low"</span>
+)
+
+conditions = [
+    df[<span class="st">"score"</span>] >= <span class="num">90</span>,
+    df[<span class="st">"score"</span>] >= <span class="num">75</span>,
+    df[<span class="st">"score"</span>] >= <span class="num">60</span>,
+]
+choices = [<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>]
+df[<span class="st">"grade"</span>] = np.select(conditions, choices, default=<span class="st">"F"</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df = df.with_columns(
+    pl.when(pl.col(<span class="st">"revenue"</span>) > <span class="num">1000</span>)
+      .then(pl.lit(<span class="st">"High"</span>))
+      .otherwise(pl.lit(<span class="st">"Low"</span>))
+      .alias(<span class="st">"tier"</span>)
+)
+df = df.with_columns(
+    pl.when(pl.col(<span class="st">"score"</span>) >= <span class="num">90</span>).then(pl.lit(<span class="st">"A"</span>))
+      .when(pl.col(<span class="st">"score"</span>) >= <span class="num">75</span>).then(pl.lit(<span class="st">"B"</span>))
+      .when(pl.col(<span class="st">"score"</span>) >= <span class="num">60</span>).then(pl.lit(<span class="st">"C"</span>))
+      .otherwise(pl.lit(<span class="st">"F"</span>))
+      .alias(<span class="st">"grade"</span>)
+)</pre>
+      </div>
+    </div>
+    <h3>Rename & drop</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.rename(columns={<span class="st">"old"</span>: <span class="st">"new"</span>})
+df.drop(columns=[<span class="st">"tmp"</span>, <span class="st">"debug"</span>])
+df.columns = [c.lower() <span class="kw">for</span> c <span class="kw">in</span> df.columns]</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.rename({<span class="st">"old"</span>: <span class="st">"new"</span>})
+df.drop([<span class="st">"tmp"</span>, <span class="st">"debug"</span>])
+df.rename({c: c.lower() <span class="kw">for</span> c <span class="kw">in</span> df.columns})</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sort">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">06</span>
+      <h2 class="sec-title">Sorting & Ranking</h2>
+    </div>
+    <p class="sec-desc">Multi-key sorting, null placement control, and stable sort options. Both support per-column sort direction.</p>
+    <h3>Sort</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.sort_values(<span class="st">"score"</span>, ascending=<span class="kw">False</span>)
+
+df.sort_values(
+    [<span class="st">"dept"</span>, <span class="st">"salary"</span>],
+    ascending=[<span class="kw">True</span>, <span class="kw">False</span>],
+    na_position=<span class="st">"last"</span>,
+    kind=<span class="st">"stable"</span>,
+)
+
+df.sort_values(<span class="st">"score"</span>, key=<span class="kw">lambda</span> s: s.abs())</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.sort(<span class="st">"score"</span>, descending=<span class="kw">True</span>)
+
+df.sort(
+    [<span class="st">"dept"</span>, <span class="st">"salary"</span>],
+    descending=[<span class="kw">False</span>, <span class="kw">True</span>],
+    nulls_last=<span class="kw">True</span>,
+    maintain_order=<span class="kw">True</span>,
+)
+
+df.sort(pl.col(<span class="st">"score"</span>).abs(), descending=<span class="kw">True</span>)</pre>
+      </div>
+    </div>
+    <h3>Rank globally</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"rank_dense"</span>] = df[<span class="st">"score"</span>].rank(
+    method=<span class="st">"dense"</span>, ascending=<span class="kw">False</span>
+)
+df[<span class="st">"rank_pct"</span>] = df[<span class="st">"score"</span>].rank(pct=<span class="kw">True</span>)
+df[<span class="st">"row_num"</span>]  = df[<span class="st">"score"</span>].rank(
+    method=<span class="st">"first"</span>, ascending=<span class="kw">False</span>
+).astype(<span class="fn">int</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.with_columns(
+    pl.col(<span class="st">"score"</span>)
+      .rank(method=<span class="st">"dense"</span>, descending=<span class="kw">True</span>)
+      .alias(<span class="st">"rank_dense"</span>),
+    pl.col(<span class="st">"score"</span>)
+      .rank(method=<span class="st">"ordinal"</span>, descending=<span class="kw">True</span>)
+      .alias(<span class="st">"row_num"</span>),
+)</pre>
+      </div>
+    </div>
+    <h3>Top-N rows per group</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>top3 = (
+    df.sort_values(<span class="st">"revenue"</span>, ascending=<span class="kw">False</span>)
+      .groupby(<span class="st">"dept"</span>)
+      .head(<span class="num">3</span>)
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>top3 = (
+    df.sort(<span class="st">"revenue"</span>, descending=<span class="kw">True</span>)
+      .group_by(<span class="st">"dept"</span>)
+      .head(<span class="num">3</span>)
+)</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="groupby">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">07</span>
+      <h2 class="sec-title">GroupBy & Aggregation</h2>
+    </div>
+    <p class="sec-desc">Both libraries support multi-column grouping and multi-function aggregation. Polars evaluates all aggregations in parallel across CPU cores. Pandas 3.0 uses named-tuple syntax for clean output column naming.</p>
+    <h3>Basic aggregation</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.groupby(<span class="st">"dept"</span>).agg(
+    total_sales = (<span class="st">"sales"</span>,  <span class="st">"sum"</span>),
+    avg_salary  = (<span class="st">"salary"</span>, <span class="st">"mean"</span>),
+    headcount   = (<span class="st">"id"</span>,     <span class="st">"count"</span>),
+    max_score   = (<span class="st">"score"</span>,  <span class="st">"max"</span>),
+    uniq_cities = (<span class="st">"city"</span>,   <span class="st">"nunique"</span>),
+).reset_index()</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.group_by(<span class="st">"dept"</span>).agg(
+    pl.col(<span class="st">"sales"</span>).sum().alias(<span class="st">"total_sales"</span>),
+    pl.col(<span class="st">"salary"</span>).mean().alias(<span class="st">"avg_salary"</span>),
+    pl.len().alias(<span class="st">"headcount"</span>),
+    pl.col(<span class="st">"score"</span>).max().alias(<span class="st">"max_score"</span>),
+    pl.col(<span class="st">"city"</span>).n_unique().alias(<span class="st">"uniq_cities"</span>),
+)</pre>
+      </div>
+    </div>
+    <h3>Multiple grouping keys + percentile</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.groupby([<span class="st">"region"</span>, <span class="st">"product"</span>]).agg(
+    revenue = (<span class="st">"amount"</span>,   <span class="st">"sum"</span>),
+    orders  = (<span class="st">"order_id"</span>, <span class="st">"nunique"</span>),
+    p90     = (<span class="st">"amount"</span>,   <span class="kw">lambda</span> x: x.quantile(<span class="num">.9</span>)),
+).reset_index()</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.group_by([<span class="st">"region"</span>, <span class="st">"product"</span>]).agg(
+    pl.col(<span class="st">"amount"</span>).sum().alias(<span class="st">"revenue"</span>),
+    pl.col(<span class="st">"order_id"</span>).n_unique().alias(<span class="st">"orders"</span>),
+    pl.col(<span class="st">"amount"</span>).quantile(<span class="num">.9</span>).alias(<span class="st">"p90"</span>),
+)</pre>
+      </div>
+    </div>
+    <h3>Collect values into a list</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.groupby(<span class="st">"user_id"</span>).agg(
+    events = (<span class="st">"event"</span>, <span class="fn">list</span>),
+    tags   = (<span class="st">"tag"</span>, <span class="kw">lambda</span> x: <span class="fn">sorted</span>(x.unique())),
+).reset_index()</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.group_by(<span class="st">"user_id"</span>).agg(
+    pl.col(<span class="st">"event"</span>).alias(<span class="st">"events"</span>),
+    pl.col(<span class="st">"tag"</span>).unique().sort().alias(<span class="st">"tags"</span>),
+)</pre>
+      </div>
+    </div>
+    <h3>Rolling & expanding (row-based)</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"ma7"</span>]  = df[<span class="st">"value"</span>].rolling(<span class="num">7</span>).mean()
+df[<span class="st">"ma7c"</span>] = df[<span class="st">"value"</span>].rolling(<span class="num">7</span>, min_periods=<span class="num">1</span>).mean()
+df[<span class="st">"std7"</span>] = df[<span class="st">"value"</span>].rolling(<span class="num">7</span>).std()
+df[<span class="st">"cum"</span>]  = df[<span class="st">"value"</span>].expanding().sum()</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.with_columns(
+    pl.col(<span class="st">"value"</span>).rolling_mean(<span class="num">7</span>).alias(<span class="st">"ma7"</span>),
+    pl.col(<span class="st">"value"</span>).rolling_mean(<span class="num">7</span>, min_periods=<span class="num">1</span>).alias(<span class="st">"ma7c"</span>),
+    pl.col(<span class="st">"value"</span>).rolling_std(<span class="num">7</span>).alias(<span class="st">"std7"</span>),
+    pl.col(<span class="st">"value"</span>).cum_sum().alias(<span class="st">"cum"</span>),
+)</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="window">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">08</span>
+      <h2 class="sec-title">Window Functions</h2>
+    </div>
+    <p class="sec-desc">Window functions compute per-row results scoped to a group — without collapsing rows the way <code>groupby</code> does. Polars uses <code>.over("key")</code> as its SQL <code>PARTITION BY</code>. Pandas uses <code>transform</code>, <code>cumsum</code>, <code>shift</code>, and <code>rank</code> on grouped objects.</p>
+    <h3>Rank within group</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"rank"</span>] = (
+    df.groupby(<span class="st">"dept"</span>)[<span class="st">"salary"</span>]
+      .rank(method=<span class="st">"dense"</span>, ascending=<span class="kw">False</span>)
+)
+df[<span class="st">"rank_min"</span>] = (
+    df.groupby(<span class="st">"dept"</span>)[<span class="st">"salary"</span>]
+      .rank(method=<span class="st">"min"</span>, ascending=<span class="kw">False</span>)
+)
+df[<span class="st">"pct_rank"</span>] = (
+    df.groupby(<span class="st">"dept"</span>)[<span class="st">"salary"</span>]
+      .rank(pct=<span class="kw">True</span>)
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.with_columns(
+    pl.col(<span class="st">"salary"</span>)
+      .rank(method=<span class="st">"dense"</span>, descending=<span class="kw">True</span>)
+      .over(<span class="st">"dept"</span>)
+      .alias(<span class="st">"rank"</span>),
+    pl.col(<span class="st">"salary"</span>)
+      .rank(method=<span class="st">"min"</span>, descending=<span class="kw">True</span>)
+      .over(<span class="st">"dept"</span>)
+      .alias(<span class="st">"rank_min"</span>),
+)</pre>
+      </div>
+    </div>
+    <h3>Row number within group <span class="h3n">ROW_NUMBER in SQL</span></h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df = df.sort_values(
+    [<span class="st">"dept"</span>, <span class="st">"salary"</span>],
+    ascending=[<span class="kw">True</span>, <span class="kw">False</span>]
+)
+df[<span class="st">"row_num"</span>] = (
+    df.groupby(<span class="st">"dept"</span>).cumcount() + <span class="num">1</span>
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df = df.sort(
+    [<span class="st">"dept"</span>, <span class="st">"salary"</span>],
+    descending=[<span class="kw">False</span>, <span class="kw">True</span>]
+)
+df.with_columns(
+    pl.col(<span class="st">"salary"</span>)
+      .rank(method=<span class="st">"ordinal"</span>, descending=<span class="kw">True</span>)
+      .over(<span class="st">"dept"</span>)
+      .alias(<span class="st">"row_num"</span>)
+)</pre>
+      </div>
+    </div>
+    <h3>Lag & Lead <span class="h3n">shift forward / backward</span></h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"prev"</span>] = (
+    df.groupby(<span class="st">"user_id"</span>)[<span class="st">"amount"</span>].shift(<span class="num">1</span>)
+)
+df[<span class="st">"next"</span>] = (
+    df.groupby(<span class="st">"user_id"</span>)[<span class="st">"amount"</span>].shift(-<span class="num">1</span>)
+)
+df[<span class="st">"lag2"</span>] = (
+    df.groupby(<span class="st">"user_id"</span>)[<span class="st">"amount"</span>].shift(<span class="num">2</span>)
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.with_columns(
+    pl.col(<span class="st">"amount"</span>).shift(<span class="num">1</span>)
+      .over(<span class="st">"user_id"</span>).alias(<span class="st">"prev"</span>),
+    pl.col(<span class="st">"amount"</span>).shift(-<span class="num">1</span>)
+      .over(<span class="st">"user_id"</span>).alias(<span class="st">"next"</span>),
+    pl.col(<span class="st">"amount"</span>).shift(<span class="num">2</span>)
+      .over(<span class="st">"user_id"</span>).alias(<span class="st">"lag2"</span>),
+)</pre>
+      </div>
+    </div>
+    <h3>Period-over-period change <span class="h3n">delta vs previous row</span></h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"delta"</span>] = (
+    df.groupby(<span class="st">"ticker"</span>)[<span class="st">"close"</span>].diff(<span class="num">1</span>)
+)
+df[<span class="st">"pct_chg"</span>] = (
+    df.groupby(<span class="st">"ticker"</span>)[<span class="st">"close"</span>].pct_change()
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.with_columns(
+    pl.col(<span class="st">"close"</span>).diff(<span class="num">1</span>)
+      .over(<span class="st">"ticker"</span>).alias(<span class="st">"delta"</span>),
+    (pl.col(<span class="st">"close"</span>).diff() /
+     pl.col(<span class="st">"close"</span>).shift(<span class="num">1</span>))
+      .over(<span class="st">"ticker"</span>).alias(<span class="st">"pct_chg"</span>),
+)</pre>
+      </div>
+    </div>
+    <h3>Cumulative sum / max / min within group</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"running_total"</span>] = (
+    df.groupby(<span class="st">"user_id"</span>)[<span class="st">"amount"</span>].cumsum()
+)
+df[<span class="st">"running_max"</span>] = (
+    df.groupby(<span class="st">"user_id"</span>)[<span class="st">"amount"</span>].cummax()
+)
+df[<span class="st">"running_min"</span>] = (
+    df.groupby(<span class="st">"user_id"</span>)[<span class="st">"amount"</span>].cummin()
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.with_columns(
+    pl.col(<span class="st">"amount"</span>).cum_sum()
+      .over(<span class="st">"user_id"</span>).alias(<span class="st">"running_total"</span>),
+    pl.col(<span class="st">"amount"</span>).cum_max()
+      .over(<span class="st">"user_id"</span>).alias(<span class="st">"running_max"</span>),
+    pl.col(<span class="st">"amount"</span>).cum_min()
+      .over(<span class="st">"user_id"</span>).alias(<span class="st">"running_min"</span>),
+)</pre>
+      </div>
+    </div>
+    <h3>Group statistics broadcast to every row <span class="h3n">GROUP BY … JOIN BACK</span></h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"dept_avg"</span>] = (
+    df.groupby(<span class="st">"dept"</span>)[<span class="st">"salary"</span>].transform(<span class="st">"mean"</span>)
+)
+df[<span class="st">"dept_total"</span>] = (
+    df.groupby(<span class="st">"dept"</span>)[<span class="st">"revenue"</span>].transform(<span class="st">"sum"</span>)
+)
+df[<span class="st">"dept_count"</span>] = (
+    df.groupby(<span class="st">"dept"</span>)[<span class="st">"id"</span>].transform(<span class="st">"count"</span>)
+)
+df[<span class="st">"dept_max"</span>] = (
+    df.groupby(<span class="st">"dept"</span>)[<span class="st">"salary"</span>].transform(<span class="st">"max"</span>)
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.with_columns(
+    pl.col(<span class="st">"salary"</span>).mean()
+      .over(<span class="st">"dept"</span>).alias(<span class="st">"dept_avg"</span>),
+    pl.col(<span class="st">"revenue"</span>).sum()
+      .over(<span class="st">"dept"</span>).alias(<span class="st">"dept_total"</span>),
+    pl.len()
+      .over(<span class="st">"dept"</span>).alias(<span class="st">"dept_count"</span>),
+    pl.col(<span class="st">"salary"</span>).max()
+      .over(<span class="st">"dept"</span>).alias(<span class="st">"dept_max"</span>),
+)</pre>
+      </div>
+    </div>
+    <h3>Rolling window within group</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"roll3"</span>] = (
+    df.groupby(<span class="st">"dept"</span>)[<span class="st">"revenue"</span>]
+      .transform(<span class="kw">lambda</span> x: x.rolling(<span class="num">3</span>, min_periods=<span class="num">1</span>).mean())
+)
+df[<span class="st">"roll_sum"</span>] = (
+    df.groupby(<span class="st">"dept"</span>)[<span class="st">"revenue"</span>]
+      .transform(<span class="kw">lambda</span> x: x.rolling(<span class="num">3</span>).sum())
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.with_columns(
+    pl.col(<span class="st">"revenue"</span>)
+      .rolling_mean(<span class="num">3</span>, min_periods=<span class="num">1</span>)
+      .over(<span class="st">"dept"</span>).alias(<span class="st">"roll3"</span>),
+    pl.col(<span class="st">"revenue"</span>)
+      .rolling_sum(<span class="num">3</span>)
+      .over(<span class="st">"dept"</span>).alias(<span class="st">"roll_sum"</span>),
+)</pre>
+      </div>
+    </div>
+    <h3>First & last value in group</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"first_buy"</span>] = (
+    df.groupby(<span class="st">"user_id"</span>)[<span class="st">"amount"</span>].transform(<span class="st">"first"</span>)
+)
+df[<span class="st">"last_buy"</span>] = (
+    df.groupby(<span class="st">"user_id"</span>)[<span class="st">"amount"</span>].transform(<span class="st">"last"</span>)
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.with_columns(
+    pl.col(<span class="st">"amount"</span>).first()
+      .over(<span class="st">"user_id"</span>).alias(<span class="st">"first_buy"</span>),
+    pl.col(<span class="st">"amount"</span>).last()
+      .over(<span class="st">"user_id"</span>).alias(<span class="st">"last_buy"</span>),
+)</pre>
+      </div>
+    </div>
+    <h3>Quantile & n-tile within group</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"p90"</span>] = (
+    df.groupby(<span class="st">"dept"</span>)[<span class="st">"score"</span>]
+      .transform(<span class="kw">lambda</span> x: x.quantile(<span class="num">.9</span>))
+)
+df[<span class="st">"quartile"</span>] = (
+    df.groupby(<span class="st">"dept"</span>)[<span class="st">"score"</span>]
+      .transform(<span class="kw">lambda</span> x: pd.qcut(x, <span class="num">4</span>, labels=<span class="kw">False</span>) + <span class="num">1</span>)
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.with_columns(
+    pl.col(<span class="st">"score"</span>).quantile(<span class="num">.9</span>)
+      .over(<span class="st">"dept"</span>).alias(<span class="st">"p90"</span>),
+)
+df.with_columns(
+    pl.col(<span class="st">"score"</span>)
+      .qcut(<span class="num">4</span>, labels=[<span class="st">"Q1"</span>,<span class="st">"Q2"</span>,<span class="st">"Q3"</span>,<span class="st">"Q4"</span>])
+      .over(<span class="st">"dept"</span>).alias(<span class="st">"quartile"</span>)
+)</pre>
+      </div>
+    </div>
+    <h3>Multi-partition window <span class="h3n">Polars</span></h3>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pl-tag">Polars — partition by multiple keys</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>df.with_columns(
+    pl.col(<span class="st">"revenue"</span>).mean()
+      .over([<span class="st">"region"</span>, <span class="st">"product_type"</span>])
+      .alias(<span class="st">"segment_avg"</span>),
+    pl.col(<span class="st">"revenue"</span>).rank(descending=<span class="kw">True</span>)
+      .over([<span class="st">"region"</span>, <span class="st">"product_type"</span>])
+      .alias(<span class="st">"rank_in_segment"</span>),
+)</pre>
+    </div>
+    <div class="callout tip">
+      <p><strong>Polars <code>.over()</code> = SQL PARTITION BY.</strong> Every SQL window expression — <code>AVG(salary) OVER (PARTITION BY dept)</code>, <code>RANK() OVER (PARTITION BY dept ORDER BY salary DESC)</code> — maps directly to Polars expression syntax. Chain any aggregation before <code>.over()</code> and it becomes a window function.</p>
+    </div>
+  </div>
+</section>
+
+<section id="pivot">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">09</span>
+      <h2 class="sec-title">Pivot & Reshape</h2>
+    </div>
+    <p class="sec-desc">Reshaping between wide and long format is one of the most common data-wrangling tasks. Pandas has rich pivot support with margins and normalization. Polars is more streamlined. Polars 1.36 added <code>LazyFrame.pivot</code>.</p>
+    <h3>pivot() — simple rotation, no aggregation <span class="h3n">one value per cell</span></h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas — df.pivot()</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>wide = df.pivot(
+    index=<span class="st">"date"</span>,
+    columns=<span class="st">"product"</span>,
+    values=<span class="st">"revenue"</span>,
+)
+wide.columns.name = <span class="kw">None</span>
+wide = wide.reset_index()</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars — df.pivot()</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>wide = df.pivot(
+    index=<span class="st">"date"</span>,
+    on=<span class="st">"product"</span>,
+    values=<span class="st">"revenue"</span>,
+    aggregate_function=<span class="kw">None</span>,
+)</pre>
+      </div>
+    </div>
+    <h3>pivot_table() — with aggregation <span class="h3n">handles duplicate cell values</span></h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas — pd.pivot_table()</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>pt = pd.pivot_table(
+    df,
+    index=<span class="st">"region"</span>,
+    columns=<span class="st">"product"</span>,
+    values=<span class="st">"revenue"</span>,
+    aggfunc=<span class="st">"sum"</span>,
+    fill_value=<span class="num">0</span>,
+    margins=<span class="kw">True</span>,
+    margins_name=<span class="st">"Total"</span>,
+    dropna=<span class="kw">True</span>,
+).reset_index()</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars — df.pivot()</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>pt = df.pivot(
+    index=<span class="st">"region"</span>,
+    on=<span class="st">"product"</span>,
+    values=<span class="st">"revenue"</span>,
+    aggregate_function=<span class="st">"sum"</span>,
+    maintain_order=<span class="kw">True</span>,
+    sort_columns=<span class="kw">True</span>,
+).fill_null(<span class="num">0</span>)</pre>
+      </div>
+    </div>
+    <h3>pivot_table() — multiple values & aggfuncs</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>pt = pd.pivot_table(
+    df,
+    index=<span class="st">"dept"</span>,
+    columns=<span class="st">"year"</span>,
+    values=[<span class="st">"revenue"</span>, <span class="st">"cost"</span>],
+    aggfunc={
+        <span class="st">"revenue"</span>: <span class="st">"sum"</span>,
+        <span class="st">"cost"</span>:    <span class="st">"mean"</span>,
+    },
+    fill_value=<span class="num">0</span>,
+)
+pt.columns = [<span class="st">"_"</span>.join(<span class="fn">map</span>(<span class="fn">str</span>, c)) <span class="kw">for</span> c <span class="kw">in</span> pt.columns]</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars — group_by + pivot</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>agg = df.group_by([<span class="st">"dept"</span>, <span class="st">"year"</span>]).agg(
+    pl.col(<span class="st">"revenue"</span>).sum().alias(<span class="st">"revenue_sum"</span>),
+    pl.col(<span class="st">"cost"</span>).mean().alias(<span class="st">"cost_mean"</span>),
+)
+wide = agg.pivot(
+    index=<span class="st">"dept"</span>,
+    on=<span class="st">"year"</span>,
+    values=<span class="st">"revenue_sum"</span>,
+    aggregate_function=<span class="st">"first"</span>,
+)</pre>
+      </div>
+    </div>
+    <h3>Key parameters — pd.pivot_table()</h3>
+    <table class="param-table">
+      <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>index</td><td>str | list</td><td>Row labels — the left-hand axis of the output</td></tr>
+        <tr><td>columns</td><td>str | list</td><td>Column headers — each unique value becomes a column</td></tr>
+        <tr><td>values</td><td>str | list</td><td>Which numeric column(s) to aggregate</td></tr>
+        <tr><td>aggfunc</td><td>str | dict | callable</td><td><code>"sum"</code>, <code>"mean"</code>, <code>"count"</code>, <code>"min"</code>, <code>"max"</code>, or a dict mapping column → func</td></tr>
+        <tr><td>fill_value</td><td>scalar</td><td>Replace NaN in result cells (e.g. <code>0</code>)</td></tr>
+        <tr><td>margins</td><td>bool</td><td>Append grand total row & column</td></tr>
+        <tr><td>margins_name</td><td>str</td><td>Label for the totals row/column (default <code>"All"</code>)</td></tr>
+        <tr><td>dropna</td><td>bool</td><td>Exclude columns where all entries are NaN (default <code>True</code>)</td></tr>
+        <tr><td>observed</td><td>bool</td><td>For Categorical columns: only show observed combinations (<code>True</code> recommended)</td></tr>
+      </tbody>
+    </table>
+    <h3>melt() / unpivot() — wide → long</h3>
+    <p>The inverse of pivot. Converts multiple value columns into rows — essential before most tidy-data operations.</p>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas — pd.melt()</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>long = pd.melt(
+    df,
+    id_vars=[<span class="st">"id"</span>, <span class="st">"name"</span>],
+    value_vars=[<span class="st">"q1"</span>, <span class="st">"q2"</span>, <span class="st">"q3"</span>, <span class="st">"q4"</span>],
+    var_name=<span class="st">"quarter"</span>,
+    value_name=<span class="st">"revenue"</span>,
+)
+
+long = df.melt(
+    id_vars=[<span class="st">"id"</span>],
+    var_name=<span class="st">"metric"</span>,
+    value_name=<span class="st">"value"</span>,
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars — df.unpivot()</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>long = df.unpivot(
+    index=[<span class="st">"id"</span>, <span class="st">"name"</span>],
+    on=[<span class="st">"q1"</span>, <span class="st">"q2"</span>, <span class="st">"q3"</span>, <span class="st">"q4"</span>],
+    variable_name=<span class="st">"quarter"</span>,
+    value_name=<span class="st">"revenue"</span>,
+)
+
+long = df.unpivot(
+    index=[<span class="st">"id"</span>],
+    variable_name=<span class="st">"metric"</span>,
+    value_name=<span class="st">"value"</span>,
+)</pre>
+      </div>
+    </div>
+    <h3>stack() / unstack() — hierarchical indexes <span class="h3n">Pandas only</span></h3>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>stacked   = df.set_index([<span class="st">"region"</span>, <span class="st">"product"</span>]).stack()
+unstacked = df.set_index(<span class="st">"region"</span>).unstack(<span class="st">"product"</span>)
+unstacked.columns = [<span class="st">"_"</span>.join(c) <span class="kw">for</span> c <span class="kw">in</span> unstacked.columns]
+stacked   = df.set_index([<span class="st">"region"</span>, <span class="st">"product"</span>]).stack(future_stack=<span class="kw">True</span>)</pre>
+    </div>
+    <h3>crosstab() — frequency / contingency tables <span class="h3n">Pandas only</span></h3>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pd-tag">Pandas — pd.crosstab()</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>ct = pd.crosstab(df[<span class="st">"dept"</span>], df[<span class="st">"grade"</span>])
+
+ct_pct = pd.crosstab(
+    df[<span class="st">"dept"</span>], df[<span class="st">"grade"</span>], normalize=<span class="st">"index"</span>
+)
+
+ct_val = pd.crosstab(
+    df[<span class="st">"dept"</span>], df[<span class="st">"grade"</span>],
+    values=df[<span class="st">"salary"</span>],
+    aggfunc=<span class="st">"mean"</span>,
+    margins=<span class="kw">True</span>,
+    margins_name=<span class="st">"Overall"</span>,
+)</pre>
+    </div>
+    <div class="callout info">
+      <p><strong>Polars 1.36 added LazyFrame.pivot.</strong> When the unique column values are known in advance, you can pivot inside a lazy pipeline without materialising first — pass the known column names as <code>values=[...]</code> to the eager pivot call, or use the lazy variant for streaming-compatible reshaping in production pipelines.</p>
+    </div>
+  </div>
+</section>
+
+<section id="joins">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">10</span>
+      <h2 class="sec-title">Joins & Merges</h2>
+    </div>
+    <p class="sec-desc">Polars uses a multi-threaded hash join engine that is typically 3–9× faster than Pandas for large datasets. Both support all major join types; Polars adds native semi, anti, and streaming ASOF joins.</p>
+    <table class="diff-table">
+      <thead><tr><th>Join type</th><th class="tc-pd">Pandas</th><th class="tc-pl">Polars</th></tr></thead>
+      <tbody>
+        <tr><td>Inner</td><td><code>how="inner"</code></td><td><code>how="inner"</code></td></tr>
+        <tr><td>Left outer</td><td><code>how="left"</code></td><td><code>how="left"</code></td></tr>
+        <tr><td>Right outer</td><td><code>how="right"</code></td><td><code>how="right"</code></td></tr>
+        <tr><td>Full outer</td><td><code>how="outer"</code></td><td><code>how="full"</code></td></tr>
+        <tr><td>Cross join</td><td><code>how="cross"</code></td><td><code>how="cross"</code></td></tr>
+        <tr><td>Semi join</td><td><code>df[df.id.isin(other.id)]</code></td><td><code>how="semi"</code></td></tr>
+        <tr><td>Anti join</td><td><code>df[~df.id.isin(other.id)]</code></td><td><code>how="anti"</code></td></tr>
+        <tr><td>ASOF join</td><td><code>pd.merge_asof()</code></td><td><code>.join_asof()</code></td></tr>
+      </tbody>
+    </table>
+    <h3>Standard join</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>result = orders.merge(
+    customers,
+    on=<span class="st">"customer_id"</span>,
+    how=<span class="st">"left"</span>,
+    suffixes=(<span class="st">"_order"</span>, <span class="st">"_cust"</span>),
+)
+result = pd.merge(
+    orders, customers,
+    left_on=<span class="st">"cust_id"</span>, right_on=<span class="st">"id"</span>,
+    how=<span class="st">"inner"</span>,
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>result = orders.join(
+    customers,
+    on=<span class="st">"customer_id"</span>,
+    how=<span class="st">"left"</span>,
+    suffix=<span class="st">"_cust"</span>,
+)
+result = orders.join(
+    customers,
+    left_on=<span class="st">"cust_id"</span>, right_on=<span class="st">"id"</span>,
+    how=<span class="st">"inner"</span>,
+)</pre>
+      </div>
+    </div>
+    <h3>ASOF join — match nearest timestamp</h3>
+    <p>Essential for financial tick data, sensor readings, and event-log attribution where events don't align on exact timestamps.</p>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>result = pd.merge_asof(
+    trades.sort_values(<span class="st">"ts"</span>),
+    quotes.sort_values(<span class="st">"ts"</span>),
+    on=<span class="st">"ts"</span>,
+    by=<span class="st">"ticker"</span>,
+    direction=<span class="st">"backward"</span>,
+    tolerance=pd.Timedelta(<span class="st">"1s"</span>),
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars — streaming ASOF (1.39+)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>result = trades.join_asof(
+    quotes,
+    on=<span class="st">"ts"</span>,
+    by=<span class="st">"ticker"</span>,
+    strategy=<span class="st">"backward"</span>,
+    tolerance=<span class="st">"1s"</span>,
+)</pre>
+      </div>
+    </div>
+    <h3>Concatenate DataFrames</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>pd.concat([df1, df2, df3], ignore_index=<span class="kw">True</span>)
+pd.concat([df1, df2], axis=<span class="num">1</span>)
+pd.concat([df1, df2], join=<span class="st">"inner"</span>, ignore_index=<span class="kw">True</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>pl.concat([df1, df2, df3])
+pl.concat([df1, df2], how=<span class="st">"horizontal"</span>)
+pl.concat([df1, df2], how=<span class="st">"diagonal"</span>)</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="dedup">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">11</span>
+      <h2 class="sec-title">Deduplication</h2>
+    </div>
+    <p class="sec-desc">Finding and removing duplicate rows is a routine step in data cleaning. Both libraries support subset-based deduplication and control over which duplicate to keep.</p>
+    <h3>Drop duplicates</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.drop_duplicates()
+df.drop_duplicates(subset=[<span class="st">"email"</span>])
+df.drop_duplicates(subset=[<span class="st">"email"</span>], keep=<span class="st">"last"</span>)
+df.drop_duplicates(subset=[<span class="st">"email"</span>], keep=<span class="kw">False</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.unique()
+df.unique(subset=[<span class="st">"email"</span>])
+df.unique(subset=[<span class="st">"email"</span>], keep=<span class="st">"last"</span>, maintain_order=<span class="kw">True</span>)
+df.unique(subset=[<span class="st">"email"</span>], keep=<span class="st">"none"</span>)</pre>
+      </div>
+    </div>
+    <h3>Detect & inspect duplicates</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.duplicated(subset=[<span class="st">"email"</span>]).sum()
+dupes = df[df.duplicated(
+    subset=[<span class="st">"id"</span>, <span class="st">"date"</span>], keep=<span class="kw">False</span>
+)]
+df[<span class="st">"is_dupe"</span>] = df.duplicated(subset=[<span class="st">"email"</span>])</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.is_duplicated().sum()
+dupes = df.filter(
+    pl.struct(<span class="st">"id"</span>, <span class="st">"date"</span>).is_duplicated()
+)
+df.with_columns(
+    pl.col(<span class="st">"email"</span>).is_duplicated().alias(<span class="st">"is_dupe"</span>)
+)</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="types">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">12</span>
+      <h2 class="sec-title">Types & Schema</h2>
+    </div>
+    <p class="sec-desc">Explicit dtype management is essential for memory efficiency and correctness. Polars uses <code>cast()</code> with optional <code>strict=False</code> for lossy conversions. Pandas uses <code>astype()</code>.</p>
+    <h3>Cast columns</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"age"</span>]   = df[<span class="st">"age"</span>].astype(<span class="st">"int32"</span>)
+df[<span class="st">"price"</span>] = df[<span class="st">"price"</span>].astype(<span class="st">"float32"</span>)
+df[<span class="st">"cat"</span>]   = df[<span class="st">"cat"</span>].astype(<span class="st">"category"</span>)
+df[<span class="st">"flag"</span>]  = df[<span class="st">"flag"</span>].astype(<span class="fn">bool</span>)
+df = df.astype({<span class="st">"age"</span>: <span class="st">"int32"</span>, <span class="st">"price"</span>: <span class="st">"float32"</span>})</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.with_columns(
+    pl.col(<span class="st">"age"</span>).cast(pl.Int32),
+    pl.col(<span class="st">"price"</span>).cast(pl.Float32),
+    pl.col(<span class="st">"cat"</span>).cast(pl.Categorical),
+    pl.col(<span class="st">"flag"</span>).cast(pl.Boolean),
+)
+df.cast({<span class="st">"age"</span>: pl.Int32, <span class="st">"price"</span>: pl.Float32})</pre>
+      </div>
+    </div>
+    <h3>Parse strings to numeric / datetime</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>pd.to_numeric(df[<span class="st">"amount"</span>], errors=<span class="st">"coerce"</span>)
+pd.to_datetime(df[<span class="st">"date"</span>])
+pd.to_datetime(df[<span class="st">"date"</span>], format=<span class="st">"%d/%m/%Y"</span>)
+pd.to_datetime(df[<span class="st">"date"</span>], utc=<span class="kw">True</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>pl.col(<span class="st">"amount"</span>).cast(pl.Float64, strict=<span class="kw">False</span>)
+pl.col(<span class="st">"date"</span>).str.to_datetime(<span class="st">"%Y-%m-%d"</span>)
+pl.col(<span class="st">"date"</span>).str.to_datetime(
+    <span class="st">"%d/%m/%Y"</span>, time_zone=<span class="st">"UTC"</span>
+)</pre>
+      </div>
+    </div>
+    <h3>Dtype reference</h3>
+    <table class="diff-table">
+      <thead><tr><th>Use case</th><th class="tc-pd">Pandas 3.0</th><th class="tc-pl">Polars</th></tr></thead>
+      <tbody>
+        <tr><td>Integers</td><td><code>int32/64</code>, <code>Int64</code> (nullable)</td><td><code>Int8/16/32/64</code>, <code>UInt8/16/32/64</code></td></tr>
+        <tr><td>Floats</td><td><code>float32/64</code></td><td><code>Float32</code>, <code>Float64</code></td></tr>
+        <tr><td>Strings</td><td><code>str</code> (PyArrow, default in 3.0)</td><td><code>String</code> / <code>Utf8</code></td></tr>
+        <tr><td>Booleans</td><td><code>bool</code>, <code>boolean</code> (nullable)</td><td><code>Boolean</code></td></tr>
+        <tr><td>Categories</td><td><code>category</code></td><td><code>Categorical</code>, <code>Enum</code></td></tr>
+        <tr><td>Datetimes</td><td><code>datetime64[us]</code> (preferred in 3.0)</td><td><code>Datetime</code>, <code>Date</code>, <code>Duration</code>, <code>Time</code></td></tr>
+        <tr><td>Nested</td><td><code>object</code> (limited)</td><td><code>List</code>, <code>Array</code>, <code>Struct</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="apply">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">13</span>
+      <h2 class="sec-title">Apply & Custom Functions</h2>
+    </div>
+    <p class="sec-desc">Native vectorised expressions should always be the first choice. Fall back to Python UDFs only when no built-in expression covers the case — they sacrifice parallelism and type inference.</p>
+    <h3>Element-wise map</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas — .map()</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"score_x2"</span>] = df[<span class="st">"score"</span>].map(<span class="kw">lambda</span> x: x * <span class="num">2</span>)
+df[<span class="st">"label"</span>] = df[<span class="st">"code"</span>].map({
+    <span class="st">"A"</span>: <span class="st">"Active"</span>,
+    <span class="st">"I"</span>: <span class="st">"Inactive"</span>,
+    <span class="st">"P"</span>: <span class="st">"Pending"</span>,
+})</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars — map_elements() / replace()</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.with_columns(
+    pl.col(<span class="st">"score"</span>)
+      .map_elements(<span class="kw">lambda</span> x: x * <span class="num">2</span>, return_dtype=pl.Float64)
+      .alias(<span class="st">"score_x2"</span>),
+)
+mapping = {<span class="st">"A"</span>: <span class="st">"Active"</span>, <span class="st">"I"</span>: <span class="st">"Inactive"</span>}
+df.with_columns(pl.col(<span class="st">"code"</span>).replace(mapping))</pre>
+      </div>
+    </div>
+    <h3>Row-wise apply</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas — apply(axis=1)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"full_name"</span>] = df.apply(
+    <span class="kw">lambda</span> row: <span class="st">f"</span>{row[<span class="st">'first'</span>]} {row[<span class="st">'last'</span>]}<span class="st">"</span>, axis=<span class="num">1</span>
+)
+df[<span class="st">"result"</span>] = df.apply(
+    <span class="kw">lambda</span> row: row[<span class="st">"a"</span>] * row[<span class="st">"b"</span>] + row[<span class="st">"c"</span>], axis=<span class="num">1</span>
+)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars — prefer expressions</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.with_columns(
+    (pl.col(<span class="st">"first"</span>) + pl.lit(<span class="st">" "</span>) + pl.col(<span class="st">"last"</span>))
+      .alias(<span class="st">"full_name"</span>),
+    (pl.col(<span class="st">"a"</span>) * pl.col(<span class="st">"b"</span>) + pl.col(<span class="st">"c"</span>))
+      .alias(<span class="st">"result"</span>),
+)</pre>
+      </div>
+    </div>
+    <h3>Series-level batch UDF — map_batches</h3>
+    <p>Operates on the entire column as a Series at once. Faster than <code>map_elements</code> for NumPy-compatible operations since it avoids per-element Python overhead.</p>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas — vectorised NumPy</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+df[<span class="st">"log_score"</span>] = np.log1p(df[<span class="st">"score"</span>])
+df[<span class="st">"clipped"</span>]  = np.clip(df[<span class="st">"val"</span>], <span class="num">0</span>, <span class="num">100</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars — map_batches()</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+df.with_columns(
+    pl.col(<span class="st">"score"</span>)
+      .map_batches(<span class="kw">lambda</span> s: pl.Series(np.log1p(s.to_numpy())))
+      .alias(<span class="st">"log_score"</span>),
+    pl.col(<span class="st">"val"</span>).clip(<span class="num">0</span>, <span class="num">100</span>).alias(<span class="st">"clipped"</span>),
+)</pre>
+      </div>
+    </div>
+    <div class="callout warn">
+      <p><strong>Prefer native expressions.</strong> <code>map_elements</code> serialises to Python for every single element — it disables multi-threading, bypasses type inference, and is typically 10–100× slower than an equivalent vectorised expression. Always exhaust the built-in expression API first.</p>
+    </div>
+  </div>
+</section>
+
+<section id="missing">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">14</span>
+      <h2 class="sec-title">Missing Data</h2>
+    </div>
+    <p class="sec-desc">Polars distinguishes strictly between <code>null</code> (missing) and <code>NaN</code> (float not-a-number). In Polars, <code>null</code> propagates through every arithmetic expression. Pandas uses <code>NaN</code> for both by default.</p>
+    <h3>Detect</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.isna()
+df.notna()
+df.isna().sum()
+df[<span class="st">"col"</span>].isna().sum()
+df.isna().mean() * <span class="num">100</span></pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.null_count()
+pl.col(<span class="st">"col"</span>).is_null()
+pl.col(<span class="st">"col"</span>).is_not_null()
+df.select(pl.all().null_count())</pre>
+      </div>
+    </div>
+    <h3>Drop rows with nulls</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.dropna()
+df.dropna(subset=[<span class="st">"col1"</span>, <span class="st">"col2"</span>])
+df.dropna(how=<span class="st">"all"</span>)
+df.dropna(thresh=<span class="num">3</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.drop_nulls()
+df.drop_nulls(subset=[<span class="st">"col1"</span>, <span class="st">"col2"</span>])</pre>
+      </div>
+    </div>
+    <h3>Fill / impute</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.fillna(<span class="num">0</span>)
+df[<span class="st">"col"</span>].ffill()
+df[<span class="st">"col"</span>].bfill()
+df[<span class="st">"col"</span>].fillna(df[<span class="st">"col"</span>].median())
+df[<span class="st">"col"</span>].interpolate(method=<span class="st">"linear"</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.fill_null(<span class="num">0</span>)
+df.with_columns(
+    pl.col(<span class="st">"col"</span>).fill_null(strategy=<span class="st">"forward"</span>),
+    pl.col(<span class="st">"col"</span>).fill_null(strategy=<span class="st">"backward"</span>),
+    pl.col(<span class="st">"col"</span>).fill_null(pl.col(<span class="st">"col"</span>).median()),
+    pl.col(<span class="st">"col"</span>).interpolate(method=<span class="st">"linear"</span>),
+)</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="strings">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">15</span>
+      <h2 class="sec-title">String Operations</h2>
+    </div>
+    <p class="sec-desc">Both use a <code>.str</code> accessor. Pandas 3.0 strings are PyArrow-backed by default — 2–5× less RAM and faster operations vs 2.x. Polars runs its string kernel on contiguous Arrow buffers with full multi-threading.</p>
+    <h3>Common transforms</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"name"</span>].str.upper()
+df[<span class="st">"name"</span>].str.lower()
+df[<span class="st">"name"</span>].str.title()
+df[<span class="st">"text"</span>].str.strip()
+df[<span class="st">"text"</span>].str.lstrip(<span class="st">"#"</span>)
+df[<span class="st">"name"</span>].str.len()
+df[<span class="st">"name"</span>].str.zfill(<span class="num">5</span>)
+df[<span class="st">"name"</span>].str.pad(<span class="num">10</span>, side=<span class="st">"right"</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>pl.col(<span class="st">"name"</span>).str.to_uppercase()
+pl.col(<span class="st">"name"</span>).str.to_lowercase()
+pl.col(<span class="st">"name"</span>).str.to_titlecase()
+pl.col(<span class="st">"text"</span>).str.strip_chars()
+pl.col(<span class="st">"text"</span>).str.strip_chars_start(<span class="st">"#"</span>)
+pl.col(<span class="st">"name"</span>).str.len_chars()
+pl.col(<span class="st">"name"</span>).str.zfill(<span class="num">5</span>)
+pl.col(<span class="st">"name"</span>).str.pad_end(<span class="num">10</span>)</pre>
+      </div>
+    </div>
+    <h3>Search & replace</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"name"</span>].str.contains(<span class="st">"Alice"</span>)
+df[<span class="st">"name"</span>].str.contains(<span class="st">r"^\d+"</span>, regex=<span class="kw">True</span>)
+df[<span class="st">"name"</span>].str.startswith(<span class="st">"A"</span>)
+df[<span class="st">"name"</span>].str.endswith(<span class="st">"Ltd"</span>)
+df[<span class="st">"text"</span>].str.replace(<span class="st">"foo"</span>, <span class="st">"bar"</span>)
+df[<span class="st">"text"</span>].str.replace(<span class="st">r"\d+"</span>, <span class="st">"NUM"</span>, regex=<span class="kw">True</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>pl.col(<span class="st">"name"</span>).str.contains(<span class="st">"Alice"</span>)
+pl.col(<span class="st">"name"</span>).str.contains(<span class="st">r"^\d+"</span>)
+pl.col(<span class="st">"name"</span>).str.starts_with(<span class="st">"A"</span>)
+pl.col(<span class="st">"name"</span>).str.ends_with(<span class="st">"Ltd"</span>)
+pl.col(<span class="st">"text"</span>).str.replace(<span class="st">"foo"</span>, <span class="st">"bar"</span>)
+pl.col(<span class="st">"text"</span>).str.replace_all(<span class="st">r"\d+"</span>, <span class="st">"NUM"</span>)</pre>
+      </div>
+    </div>
+    <h3>Split & extract</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"name"</span>].str.split(<span class="st">"_"</span>).str[<span class="num">0</span>]
+df[<span class="st">"name"</span>].str.split(<span class="st">"_"</span>, expand=<span class="kw">True</span>)
+df[<span class="st">"date"</span>].str.extract(r<span class="st">"(\d{4})-(\d{2})-(\d{2})"</span>)
+df[<span class="st">"col"</span>].str.extractall(r<span class="st">"(\d+)"</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>pl.col(<span class="st">"name"</span>).str.splitn(<span class="st">"_"</span>, <span class="num">2</span>).list.first()
+pl.col(<span class="st">"name"</span>).str.split(<span class="st">"_"</span>).list.to_struct().unnest()
+pl.col(<span class="st">"date"</span>).str.extract(r<span class="st">"(\d{4})-(\d{2})-(\d{2})"</span>, <span class="num">1</span>)
+pl.col(<span class="st">"col"</span>).str.extract_all(r<span class="st">"(\d+)"</span>)</pre>
+      </div>
+    </div>
+    <div class="callout new">
+      <p><strong>Pandas 3.0 string backend:</strong> Strings are now PyArrow-backed by default. The dtype shows as <code>str</code> (not <code>object</code>). This means 2–5× less RAM for text-heavy DataFrames and substantially faster operations — automatically, without code changes. Opt out only if needed: <code>pd.set_option("future.infer_string", False)</code>.</p>
+    </div>
+  </div>
+</section>
+
+<section id="time">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">16</span>
+      <h2 class="sec-title">Date & Time</h2>
+    </div>
+    <p class="sec-desc">Pandas has a deep time-series ecosystem — resample, business-day offsets, and timezone-aware indexes. Polars adds time-based rolling windows that respect actual duration rather than row count.</p>
+    <h3>Parse & create datetimes</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"ts"</span>] = pd.to_datetime(df[<span class="st">"ts"</span>])
+df[<span class="st">"ts"</span>] = pd.to_datetime(df[<span class="st">"ts"</span>], utc=<span class="kw">True</span>)
+df[<span class="st">"ts"</span>] = pd.to_datetime(
+    df[<span class="st">"ts"</span>], format=<span class="st">"%d/%m/%Y %H:%M"</span>
+)
+idx = pd.date_range(<span class="st">"2026-01-01"</span>, periods=<span class="num">365</span>, freq=<span class="st">"D"</span>)
+pd.date_range(<span class="st">"2026-01-01"</span>, <span class="st">"2026-12-31"</span>, freq=<span class="st">"W-MON"</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.with_columns(
+    pl.col(<span class="st">"ts"</span>).str.to_datetime(<span class="st">"%Y-%m-%d"</span>),
+    pl.col(<span class="st">"ts"</span>).str.to_datetime(
+        <span class="st">"%d/%m/%Y %H:%M"</span>, time_zone=<span class="st">"UTC"</span>
+    ),
+)
+<span class="kw">from</span> datetime <span class="kw">import</span> date
+dates = pl.date_range(
+    date(<span class="num">2026</span>,<span class="num">1</span>,<span class="num">1</span>), date(<span class="num">2026</span>,<span class="num">12</span>,<span class="num">31</span>), <span class="st">"1d"</span>, eager=<span class="kw">True</span>
+)</pre>
+      </div>
+    </div>
+    <h3>Extract date parts</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"ts"</span>].dt.year
+df[<span class="st">"ts"</span>].dt.month
+df[<span class="st">"ts"</span>].dt.day_of_week
+df[<span class="st">"ts"</span>].dt.hour
+df[<span class="st">"ts"</span>].dt.quarter
+df[<span class="st">"ts"</span>].dt.is_month_end
+df[<span class="st">"ts"</span>].dt.floor(<span class="st">"h"</span>)
+df[<span class="st">"ts"</span>].dt.tz_convert(<span class="st">"US/Eastern"</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>pl.col(<span class="st">"ts"</span>).dt.year()
+pl.col(<span class="st">"ts"</span>).dt.month()
+pl.col(<span class="st">"ts"</span>).dt.weekday()
+pl.col(<span class="st">"ts"</span>).dt.hour()
+pl.col(<span class="st">"ts"</span>).dt.quarter()
+pl.col(<span class="st">"ts"</span>).dt.is_last_day()
+pl.col(<span class="st">"ts"</span>).dt.truncate(<span class="st">"1h"</span>)
+pl.col(<span class="st">"ts"</span>).dt.convert_time_zone(<span class="st">"US/Eastern"</span>)</pre>
+      </div>
+    </div>
+    <h3>Resample / group by time interval</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.set_index(<span class="st">"ts"</span>).resample(<span class="st">"W"</span>).agg({
+    <span class="st">"value"</span>: <span class="st">"sum"</span>,
+    <span class="st">"users"</span>: <span class="st">"nunique"</span>,
+}).reset_index()
+df.set_index(<span class="st">"ts"</span>).resample(<span class="st">"ME"</span>).sum()</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.group_by_dynamic(<span class="st">"ts"</span>, every=<span class="st">"1w"</span>).agg(
+    pl.col(<span class="st">"value"</span>).sum(),
+    pl.col(<span class="st">"users"</span>).n_unique(),
+)
+df.group_by_dynamic(<span class="st">"ts"</span>, every=<span class="st">"1mo"</span>).agg(
+    pl.all().sum()
+)</pre>
+      </div>
+    </div>
+    <h3>Time-based rolling window <span class="h3n">duration-aware</span></h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas — offset rolling</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df = df.set_index(<span class="st">"ts"</span>).sort_index()
+df[<span class="st">"7d_avg"</span>]  = df[<span class="st">"value"</span>].rolling(<span class="st">"7D"</span>).mean()
+df[<span class="st">"30d_sum"</span>] = df[<span class="st">"value"</span>].rolling(<span class="st">"30D"</span>).sum()
+df = df.reset_index()</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars — rolling_mean_by()</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.sort(<span class="st">"ts"</span>).with_columns(
+    pl.col(<span class="st">"value"</span>)
+      .rolling_mean_by(<span class="st">"ts"</span>, window_size=<span class="st">"7d"</span>)
+      .alias(<span class="st">"7d_avg"</span>),
+    pl.col(<span class="st">"value"</span>)
+      .rolling_sum_by(<span class="st">"ts"</span>, window_size=<span class="st">"30d"</span>)
+      .alias(<span class="st">"30d_sum"</span>),
+)</pre>
+      </div>
+    </div>
+    <h3>Duration arithmetic</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"days_since"</span>] = (
+    pd.Timestamp(<span class="st">"2026-01-01"</span>) - df[<span class="st">"ts"</span>]
+).dt.days
+df[<span class="st">"ts_plus_30"</span>] = df[<span class="st">"ts"</span>] + pd.Timedelta(<span class="st">"30D"</span>)</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df.with_columns(
+    (
+      pl.lit(<span class="st">"2026-01-01"</span>).str.to_datetime(<span class="st">"%Y-%m-%d"</span>)
+      - pl.col(<span class="st">"ts"</span>)
+    ).dt.total_days().alias(<span class="st">"days_since"</span>),
+    (pl.col(<span class="st">"ts"</span>) + pl.duration(days=<span class="num">30</span>))
+      .alias(<span class="st">"ts_plus_30"</span>),
+)</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pandas3">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">17</span>
+      <h2 class="sec-title">Pandas 3.0 — What's New</h2>
+    </div>
+    <p class="sec-desc">Released January 21, 2026. Three foundational changes that improve every existing codebase automatically — plus two new capabilities that close the performance gap with Polars.</p>
+    <h3>1. Copy-on-Write — mandatory</h3>
+    <p>The infamous <code>SettingWithCopyWarning</code> is permanently gone. Slicing never creates ambiguous views. Memory is only physically copied at the exact moment a write occurs.</p>
+    <div class="code-pane" style="max-width:640px; margin-bottom: 1rem;">
+      <div class="code-label"><span class="lib-tag pd-tag">Before — Pandas 2.x</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>subset = df[df[<span class="st">"region"</span>] == <span class="st">"EU"</span>]
+subset[<span class="st">"flag"</span>] = <span class="kw">True</span>
+
+subset = df[df[<span class="st">"region"</span>] == <span class="st">"EU"</span>].copy()
+subset[<span class="st">"flag"</span>] = <span class="kw">True</span></pre>
+    </div>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pd-tag">Pandas 3.0 — CoW</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>subset = df[df[<span class="st">"region"</span>] == <span class="st">"EU"</span>]
+subset[<span class="st">"flag"</span>] = <span class="kw">True</span>
+
+subset2 = subset.copy()
+subset2[<span class="st">"flag"</span>] = <span class="kw">False</span></pre>
+    </div>
+    <h3>2. Native <code>str</code> dtype — PyArrow-backed strings</h3>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pd-tag">Pandas 3.0</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>df = pd.DataFrame({<span class="st">"name"</span>: [<span class="st">"Alice"</span>, <span class="st">"Bob"</span>]})
+df.dtypes
+
+pd.set_option(<span class="st">"future.infer_string"</span>, <span class="kw">False</span>)</pre>
+    </div>
+    <h3>3. Optional lazy evaluation mode</h3>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pd-tag">Pandas 3.0 lazy</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>result = (
+    df.lazy()
+      .filter(df[<span class="st">"age"</span>] > <span class="num">25</span>)
+      .groupby(<span class="st">"department"</span>)
+      .agg({<span class="st">"salary"</span>: <span class="st">"mean"</span>})
+      .sort_values(<span class="st">"salary"</span>, ascending=<span class="kw">False</span>)
+      .collect()
+)</pre>
+    </div>
+    <h3>4. GPU acceleration via cuDF</h3>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pd-tag">Pandas 3.0 + cuDF (NVIDIA GPU)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>pd.set_option(<span class="st">"compute.backend"</span>, <span class="st">"cudf"</span>)
+result = df.groupby(<span class="st">"category"</span>).agg({<span class="st">"revenue"</span>: <span class="st">"sum"</span>})
+pd.set_option(<span class="st">"compute.backend"</span>, <span class="st">"auto"</span>)</pre>
+    </div>
+  </div>
+</section>
+
+<section id="lazy">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">18</span>
+      <h2 class="sec-title">Polars Lazy API & Streaming</h2>
+    </div>
+    <p class="sec-desc">Polars' defining feature. Build a query plan first, let the optimiser push predicates and column selection into the file reader, eliminate dead branches — then execute. With <code>engine="streaming"</code> it processes larger-than-RAM datasets in batches.</p>
+    <h3>scan → transform → collect</h3>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pl-tag">Polars Lazy API</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>lf = pl.scan_parquet(<span class="st">"s3://bucket/sales/**.parquet"</span>)
+
+result = (
+    lf
+    .filter(pl.col(<span class="st">"year"</span>) == <span class="num">2026</span>)
+    .filter(pl.col(<span class="st">"amount"</span>) > <span class="num">0</span>)
+    .select([<span class="st">"order_id"</span>, <span class="st">"customer"</span>, <span class="st">"amount"</span>])
+    .group_by(<span class="st">"customer"</span>)
+    .agg(pl.col(<span class="st">"amount"</span>).sum().alias(<span class="st">"total"</span>))
+    .sort(<span class="st">"total"</span>, descending=<span class="kw">True</span>)
+    .head(<span class="num">100</span>)
+)
+
+<span class="fn">print</span>(result.explain())
+df = result.collect()</pre>
+    </div>
+    <h3>Streaming — bigger-than-RAM data</h3>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pl-tag">Polars Streaming Engine</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>pl.Config.set_engine_affinity(<span class="st">"streaming"</span>)
+
+df = (
+    pl.scan_csv(<span class="st">"huge_file.csv"</span>)
+      .filter(pl.col(<span class="st">"active"</span>))
+      .group_by(<span class="st">"region"</span>)
+      .agg(pl.col(<span class="st">"revenue"</span>).sum())
+      .collect(engine=<span class="st">"streaming"</span>)
+)
+
+(
+    pl.scan_parquet(<span class="st">"100gb_file.parquet"</span>)
+      .filter(pl.col(<span class="st">"region"</span>) == <span class="st">"EU"</span>)
+      .sink_parquet(<span class="st">"eu_only.parquet"</span>)
+)</pre>
+    </div>
+    <h3>Profile & inspect</h3>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>df, timing = lazy_query.profile()
+<span class="fn">print</span>(timing)</pre>
+    </div>
+    <h3>SQL interface</h3>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pl-tag">Polars SQLContext</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>ctx = pl.SQLContext({<span class="st">"orders"</span>: orders, <span class="st">"customers"</span>: customers})
+
+result = ctx.execute(<span class="st">"""
+    SELECT
+        c.region,
+        SUM(o.amount)              AS revenue,
+        COUNT(DISTINCT o.cust_id)  AS customers
+    FROM orders o
+    JOIN customers c ON o.cust_id = c.id
+    WHERE o.year = 2026
+    GROUP BY c.region
+    ORDER BY revenue DESC
+"""</span>)</pre>
+    </div>
+    <div class="callout info">
+      <p><strong>Polars 1.38–1.39 additions:</strong> Streaming now supports merge joins and ASOF joins. All major file formats have streaming scan implementations. <code>LazyFrame.pivot</code> was added in 1.36. Enable streaming globally with <code>Config.set_engine_affinity("streaming")</code> for production pipelines.</p>
+    </div>
+  </div>
+</section>
+
+<section id="interop">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">19</span>
+      <h2 class="sec-title">Interoperability</h2>
+    </div>
+    <p class="sec-desc">Pandas 3.0's PyArrow backend makes conversion between the two libraries zero-copy in most cases — no physical memory duplication when <code>use_pyarrow_extension_array=True</code>.</p>
+    <div class="code-pane" style="max-width:640px; margin-bottom: 1rem;">
+      <div class="code-label"><span class="lib-tag">Polars → Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>pandas_df = polars_df.to_pandas(use_pyarrow_extension_array=<span class="kw">True</span>)
+pandas_df = polars_df.to_pandas()</pre>
+    </div>
+    <div class="code-pane" style="max-width:640px; margin-bottom: 1rem;">
+      <div class="code-label"><span class="lib-tag">Pandas → Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>polars_df = pl.from_pandas(pandas_df)
+<span class="kw">import</span> pyarrow <span class="kw">as</span> pa
+polars_df = pl.from_arrow(pandas_df.to_arrow())</pre>
+    </div>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag">Hybrid pipeline — 2026 best practice</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">import</span> polars <span class="kw">as</span> pl
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier
+
+features = (
+    pl.scan_parquet(<span class="st">"s3://data/events/**.parquet"</span>)
+      .filter(pl.col(<span class="st">"event_type"</span>) == <span class="st">"purchase"</span>)
+      .group_by(<span class="st">"user_id"</span>)
+      .agg([
+          pl.col(<span class="st">"amount"</span>).sum().alias(<span class="st">"total_spend"</span>),
+          pl.col(<span class="st">"amount"</span>).mean().alias(<span class="st">"avg_spend"</span>),
+          pl.len().alias(<span class="st">"purchase_count"</span>),
+      ])
+      .collect(engine=<span class="st">"streaming"</span>)
+)
+X = features.drop(<span class="st">"user_id"</span>).to_pandas(use_pyarrow_extension_array=<span class="kw">True</span>)
+y = labels.to_pandas()
+model = RandomForestClassifier().fit(X, y)</pre>
+    </div>
+  </div>
+</section>
+
+<section id="when">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">20</span>
+      <h2 class="sec-title">When to Use Which</h2>
+    </div>
+    <p class="sec-desc">The 2026 answer: use both. Polars for heavy lifting; Pandas for the ML/stats ecosystem handoff. They compose cleanly via a shared Apache Arrow memory layer.</p>
+    <div class="when-grid">
+      <div class="when-card pd-card">
+        <h4 class="pd-title">Use Pandas 3.0 when…</h4>
+        <ul>
+          <li>Integrating with scikit-learn, statsmodels, or PyTorch</li>
+          <li>Working in Jupyter notebooks with matplotlib / seaborn</li>
+          <li>Dataset fits comfortably in RAM (&lt; 2 GB)</li>
+          <li>Team already knows Pandas and migration cost is real</li>
+          <li>You need <code>DatetimeTZDtype</code>, <code>CategoricalDtype</code>, or <code>IntervalIndex</code></li>
+          <li>SQL → Pandas via <code>pd.read_sql()</code> in existing pipelines</li>
+          <li>Statistical methods: <code>.corr()</code>, <code>.autocorr()</code>, <code>.pct_change()</code></li>
+          <li>pivot_table with margins, normalize, and multi-aggfunc</li>
+          <li>Hierarchical indexes — stack / unstack / MultiIndex</li>
+        </ul>
+      </div>
+      <div class="when-card pl-card">
+        <h4 class="pl-title">Use Polars 1.x when…</h4>
+        <ul>
+          <li>Dataset exceeds RAM — use the streaming engine</li>
+          <li>ETL pipelines and data engineering at scale</li>
+          <li>You need parallel CPU execution (joins, groupby, window)</li>
+          <li>Working with Parquet / Arrow data from cloud storage</li>
+          <li>Nested JSON / Struct / List / Array columns</li>
+          <li>Performance is a hard requirement (3–30× faster)</li>
+          <li>Deterministic, reproducible transforms (immutable DataFrames)</li>
+          <li>SQL-style window functions with <code>.over()</code></li>
+          <li>Lazy query optimisation and predicate pushdown</li>
+        </ul>
+      </div>
+    </div>
+    <h3>Performance reference <span class="h3n">1 GB dataset, June 2026</span></h3>
+    <div class="bench">
+      <div class="bench-legend">
+        <span><span class="bench-dot" style="background:var(--pd)"></span> Pandas 3.0</span>
+        <span><span class="bench-dot" style="background:var(--pl)"></span> Polars 1.x</span>
+      </div>
+      <div class="bench-row"><span class="bench-label">CSV read</span><div class="bench-track"><div class="bench-pd" style="width:18%"></div></div><span class="bench-val" style="color:var(--pd)">5 s</span></div>
+      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl)">1 s</span></div>
+      <div class="bench-row" style="margin-top:.5rem"><span class="bench-label">GroupBy + agg</span><div class="bench-track"><div class="bench-pd" style="width:14%"></div></div><span class="bench-val" style="color:var(--pd)">12 s</span></div>
+      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl)">1.4 s</span></div>
+      <div class="bench-row" style="margin-top:.5rem"><span class="bench-label">Hash join</span><div class="bench-track"><div class="bench-pd" style="width:12%"></div></div><span class="bench-val" style="color:var(--pd)">18 s</span></div>
+      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl)">2 s</span></div>
+      <div class="bench-row" style="margin-top:.5rem"><span class="bench-label">String filter</span><div class="bench-track"><div class="bench-pd" style="width:32%"></div></div><span class="bench-val" style="color:var(--pd)">3.1 s</span></div>
+      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl)">0.9 s</span></div>
+      <div class="bench-row" style="margin-top:.5rem"><span class="bench-label">Window fn</span><div class="bench-track"><div class="bench-pd" style="width:8%"></div></div><span class="bench-val" style="color:var(--pd)">22 s</span></div>
+      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl)">1.7 s</span></div>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-3);margin-top:.5rem">Reference: danilchenko.dev Polars 1.x vs Pandas benchmarks, May 2026. Pandas 3.0 string operations are ~2× faster than 2.x due to the PyArrow backend, but Polars still leads on large datasets due to multi-threaded execution.</p>
+    <div class="callout tip">
+      <p><strong>The 2026 hybrid pattern:</strong> Run Polars for heavy ETL transforms, then call <code>.to_pandas(use_pyarrow_extension_array=True)</code> for the ML handoff. Polars speed plus the full PyData ecosystem — zero tradeoffs, zero data copies.</p>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  Last updated: July 8, 2026 · Pandas 3.0 & Polars 1.x Complete Reference
+</div>
+
+</div>
+
+<div class="cmdk-fab" onclick="openCmdk()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+</div>
+
+<div class="cmdk-overlay" id="cmdk-overlay" onclick="if(event.target === this) closeCmdk()">
+  <div class="cmdk-modal">
+    <div class="cmdk-input-wrap">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:12px"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="cmdk-input" class="cmdk-input" placeholder="Search sections, functions, or keywords..." autocomplete="off">
+      <span class="kbd" style="margin-left:12px">ESC</span>
+    </div>
+    <div class="cmdk-results" id="cmdk-results"></div>
+  </div>
+</div>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code-label').nextElementSibling;
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+function setFilter(mode, el) {
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.remove('active', 'pd-active', 'pl-active');
+  });
+  if (mode === 'all') el.classList.add('active');
+  else if (mode === 'pd') { el.classList.add('active', 'pd-active'); }
+  else { el.classList.add('active', 'pl-active'); }
+  
+  document.querySelectorAll('.compare').forEach(grid => {
+    const panes = grid.querySelectorAll('.code-pane');
+    panes.forEach(pane => {
+      const isPd = pane.querySelector('.pd-tag') !== null;
+      const isPl = pane.querySelector('.pl-tag') !== null;
+      pane.style.display = mode === 'all' ? '' : (mode === 'pd' ? (isPd ? '' : 'none') : (isPl ? '' : 'none'));
+    });
+    grid.style.gridTemplateColumns = mode !== 'all' ? '1fr' : '';
+  });
+}
+
+let lastScrollY = window.scrollY;
+const topBar = document.getElementById('top-bar');
+const progressBar = document.getElementById('progress-bar');
+
+window.addEventListener('scroll', () => {
+  const currentScrollY = window.scrollY;
+  if (currentScrollY > 150 && currentScrollY > lastScrollY) {
+    topBar.classList.add('hidden');
+  } else {
+    topBar.classList.remove('hidden');
+  }
+  lastScrollY = currentScrollY;
+  
+  const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = (currentScrollY / scrollHeight) * 100;
+  progressBar.style.width = progress + '%';
+}, { passive: true });
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.05 });
+document.querySelectorAll('section').forEach(sec => observer.observe(sec));
+
+const sunIcon = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+const moonIcon = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+const autoIcon = '<circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 0 0 20z"></path>';
+
+function applyTheme(theme) {
+  const icon = document.getElementById('theme-icon');
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    icon.innerHTML = sunIcon;
+  } else if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    icon.innerHTML = moonIcon;
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    icon.innerHTML = autoIcon;
+  }
+}
+
+function toggleTheme() {
+  let currentTheme = 'system';
+  if (document.documentElement.getAttribute('data-theme') === 'dark') currentTheme = 'dark';
+  else if (document.documentElement.getAttribute('data-theme') === 'light') currentTheme = 'light';
+  
+  let nextTheme;
+  if (currentTheme === 'system') nextTheme = 'dark';
+  else if (currentTheme === 'dark') nextTheme = 'light';
+  else nextTheme = 'system';
+  
+  localStorage.setItem('theme', nextTheme);
+  applyTheme(nextTheme);
+}
+
+const savedTheme = localStorage.getItem('theme') || 'system';
+applyTheme(savedTheme);
+
+let searchIndex = [];
+function buildSearchIndex() {
+  searchIndex = [];
+  document.querySelectorAll('section').forEach(sec => {
+    const h2 = sec.querySelector('.sec-title');
+    const num = sec.querySelector('.sec-num');
+    if (h2) {
+      searchIndex.push({
+        title: h2.textContent.trim(),
+        desc: sec.querySelector('.sec-desc')?.textContent.trim().substring(0, 100) + '...',
+        id: sec.id,
+        type: 'Section',
+        icon: num?.textContent || 'S'
+      });
+    }
+    sec.querySelectorAll('h3').forEach(h3 => {
+      searchIndex.push({
+        title: h3.childNodes[0]?.textContent.trim() || h3.textContent.trim(),
+        desc: 'Sub-section in ' + (h2?.textContent.trim() || ''),
+        id: sec.id,
+        type: 'Topic',
+        icon: 'T'
+      });
+    });
+    sec.querySelectorAll('pre').forEach(pre => {
+      const text = pre.innerText.replace(/\n/g, ' ').substring(0, 60);
+      if (text.length > 10) {
+        const label = pre.previousElementSibling?.querySelector('.lib-tag')?.textContent || 'Code';
+        searchIndex.push({
+          title: text + '...',
+          desc: label + ' snippet in ' + (h2?.textContent.trim() || ''),
+          id: sec.id,
+          type: 'Code',
+          icon: label.includes('Pandas') ? 'PD' : (label.includes('Polars') ? 'PL' : 'C')
+        });
+      }
+    });
+  });
+}
+buildSearchIndex();
+
+let selectedResult = -1;
+
+function fuzzyScore(query, text) {
+  if (!query) return { score: 1, indices: [] };
+  query = query.toLowerCase();
+  text = text.toLowerCase();
+  let qi = 0, ti = 0, score = 0, indices = [];
+  
+  while (qi < query.length && ti < text.length) {
+    if (query[qi] === text[ti]) {
+      indices.push(ti);
+      score += 1;
+      if (ti === 0 || text[ti-1] === ' ' || text[ti-1] === '_' || text[ti-1] === '.' || text[ti-1] === '(') {
+        score += 10;
+      }
+      qi++;
+    }
+    ti++;
+  }
+  
+  if (qi === query.length) {
+    score += (100 - indices[0]) * 0.01;
+    return { score, indices };
+  }
+  return { score: 0, indices: [] };
+}
+
+function highlightText(text, indices) {
+  if (!indices || indices.length === 0) return text;
+  let html = '';
+  let idx = 0;
+  for (let i = 0; i < text.length; i++) {
+    if (idx < indices.length && i === indices[idx]) {
+      html += '<mark>' + text[i] + '</mark>';
+      idx++;
+    } else {
+      html += text[i];
+    }
+  }
+  return html;
+}
+
+function openCmdk() {
+  document.getElementById('cmdk-overlay').classList.add('active');
+  document.getElementById('cmdk-input').focus();
+  document.getElementById('cmdk-input').value = '';
+  renderCmdkResults('');
+}
+
+function closeCmdk() {
+  document.getElementById('cmdk-overlay').classList.remove('active');
+}
+
+function renderCmdkResults(query) {
+  const resultsDiv = document.getElementById('cmdk-results');
+  const q = query.toLowerCase().trim();
+  
+  let scoredItems = searchIndex.map(item => {
+    const titleMatch = fuzzyScore(q, item.title);
+    const descMatch = fuzzyScore(q, item.desc);
+    const score = titleMatch.score + (descMatch.score * 0.5);
+    return { ...item, score, indices: titleMatch.indices };
+  }).filter(item => item.score > 0);
+  
+  scoredItems.sort((a, b) => b.score - a.score);
+  
+  selectedResult = -1;
+  
+  if (scoredItems.length === 0) {
+    resultsDiv.innerHTML = '<div class="cmdk-empty">No results found for "' + query + '"</div>';
+    return;
+  }
+  
+  resultsDiv.innerHTML = scoredItems.slice(0, 20).map((item, i) => {
+    let iconClass = '';
+    if (item.icon === 'PD') iconClass = 'pd';
+    else if (item.icon === 'PL') iconClass = 'pl';
+    
+    const highlightedTitle = highlightText(item.title, item.indices);
+    
+    return `
+      <div class="cmdk-result" onclick="navigateTo('${item.id}')" data-index="${i}">
+        <div class="cmdk-res-icon ${iconClass}">${item.icon}</div>
+        <div class="cmdk-res-content">
+          <div class="cmdk-res-title">${highlightedTitle}</div>
+          <div class="cmdk-res-desc">${item.desc}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function navigateTo(id) {
+  closeCmdk();
+  const el = document.getElementById(id);
+  if (el) {
+    const topPos = el.getBoundingClientRect().top + window.scrollY - 90;
+    window.scrollTo({ top: topPos, behavior: 'smooth' });
+    el.classList.add('highlight-flash');
+    setTimeout(() => el.classList.remove('highlight-flash'), 1200);
+  }
+}
+
+document.getElementById('cmdk-input').addEventListener('input', (e) => {
+  renderCmdkResults(e.target.value);
+});
+
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    if (document.getElementById('cmdk-overlay').classList.contains('active')) {
+      closeCmdk();
+    } else {
+      openCmdk();
+    }
+  }
+  if (e.key === 'Escape') {
+    closeCmdk();
+  }
+  if (document.getElementById('cmdk-overlay').classList.contains('active')) {
+    const results = document.querySelectorAll('.cmdk-result');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      selectedResult = Math.min(selectedResult + 1, results.length - 1);
+      updateSelected(results);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      selectedResult = Math.max(selectedResult - 1, 0);
+      updateSelected(results);
+    } else if (e.key === 'Enter' && selectedResult >= 0) {
+      e.preventDefault();
+      results[selectedResult]?.click();
+    }
+  }
+});
+
+function updateSelected(results) {
+  results.forEach((r, i) => {
+    if (i === selectedResult) {
+      r.classList.add('selected');
+      r.scrollIntoView({ block: 'nearest' });
+    } else {
+      r.classList.remove('selected');
+    }
+  });
+}
+</script>
+</body>
+</html>
