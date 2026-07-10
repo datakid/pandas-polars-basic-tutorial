@@ -3,108 +3,124 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pandas & Polars syntax</title>
+<title>Pandas & Polars</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ============================================================
+   DESIGN SYSTEM — "Two Bears, One DataFrame"
+   Pandas = bamboo forest (warm amber/clay on parchment)
+   Polars = polar ice (arctic blue/cyan on frost)
+   Base   = deep slate "night sky" chrome that both habitats sit on
+   ============================================================ */
 :root {
-  --bg: #f5f5f7;
-  --bg-blur: rgba(245, 245, 247, 0.7);
+  --bg: #f6f4ef;
+  --bg-blur: rgba(246, 244, 239, 0.72);
   --surface: #ffffff;
-  --surface-2: #ececef;
-  --surface-3: #e3e3e8;
-  --border: #dcdce0;
-  --border-subtle: #ebebf0;
-  --text: #1d1d1f;
-  --text-2: #515154;
-  --text-3: #86868b;
-  --pd: #e85d04;
-  --pd-dim: rgba(232, 93, 4, 0.08);
-  --pl: #0096c7;
-  --pl-dim: rgba(0, 150, 199, 0.08);
-  --accent: #6f5bff;
-  --accent-dim: rgba(111, 91, 255, 0.08);
-  --green: #2d8a37;
-  --yellow: #c99700;
-  --code-bg: #ffffff;
-  --shadow: 0 4px 24px -4px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --surface-2: #eeece4;
+  --surface-3: #e2ded2;
+  --border: #ddd7c8;
+  --border-subtle: #eae6db;
+  --text: #1b1a17;
+  --text-2: #56534a;
+  --text-3: #8b8677;
+  --pd: #c1611a;
+  --pd-ink: #8a4310;
+  --pd-dim: rgba(193, 97, 26, 0.10);
+  --pl: #0d7bb0;
+  --pl-ink: #08557a;
+  --pl-dim: rgba(13, 123, 176, 0.10);
+  --accent: #7a5cff;
+  --accent-dim: rgba(122, 92, 255, 0.10);
+  --green: #257a3e;
+  --yellow: #a97300;
+  --code-bg: #fffdf9;
+  --shadow: 0 4px 24px -4px rgba(30,20,5,0.10), 0 1px 2px rgba(30,20,5,0.05);
+  --divider-grad: linear-gradient(90deg, var(--pd) 0%, var(--pd) 42%, var(--accent) 50%, var(--pl) 58%, var(--pl) 100%);
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", -apple-system, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 }
 
 [data-theme="dark"] {
-  --bg: #000000;
-  --bg-blur: rgba(0, 0, 0, 0.6);
-  --surface: #161618;
-  --surface-2: #1c1c1e;
-  --surface-3: #2c2c2e;
-  --border: #2a2a2c;
-  --border-subtle: #222225;
-  --text: #f5f5f7;
-  --text-2: #aeaeb2;
-  --text-3: #636366;
-  --pd: #ff7f45;
-  --pd-dim: rgba(255, 127, 69, 0.12);
-  --pl: #4cc9f0;
-  --pl-dim: rgba(76, 201, 240, 0.12);
-  --accent: #a78bfa;
-  --accent-dim: rgba(167, 139, 250, 0.12);
-  --green: #4ade80;
-  --yellow: #fbbf24;
-  --code-bg: #0e0e10;
-  --shadow: 0 4px 24px -4px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.2);
+  --bg: #0c0d10;
+  --bg-blur: rgba(12, 13, 16, 0.68);
+  --surface: #15161a;
+  --surface-2: #1b1c21;
+  --surface-3: #26272e;
+  --border: #2a2b32;
+  --border-subtle: #202127;
+  --text: #f2f1ec;
+  --text-2: #aeada6;
+  --text-3: #6b6a66;
+  --pd: #ff9e4a;
+  --pd-ink: #ffb877;
+  --pd-dim: rgba(255, 158, 74, 0.14);
+  --pl: #4fc3f7;
+  --pl-ink: #86dcff;
+  --pl-dim: rgba(79, 195, 247, 0.14);
+  --accent: #b3a0ff;
+  --accent-dim: rgba(179, 160, 255, 0.14);
+  --green: #57d17f;
+  --yellow: #f2c14e;
+  --code-bg: #101114;
+  --shadow: 0 4px 28px -4px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.3);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html { scroll-behavior: smooth; font-size: 16px; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  font-family: var(--font-body);
   line-height: 1.6;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background 0.3s ease, color 0.3s ease;
+  background-image:
+    radial-gradient(ellipse 900px 500px at 8% -5%, var(--pd-dim), transparent 60%),
+    radial-gradient(ellipse 900px 500px at 92% 8%, var(--pl-dim), transparent 60%);
+  background-repeat: no-repeat;
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
 
-.progress-bar { position: fixed; top: 0; left: 0; height: 2px; width: 0%; background: var(--accent); z-index: 1000; transition: width 0.1s linear; }
+.progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: var(--divider-grad); z-index: 1000; transition: width 0.1s linear; box-shadow: 0 0 12px rgba(122,92,255,0.4); }
 
 .top-bar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   background: var(--bg-blur);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
   border-bottom: 1px solid var(--border-subtle);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease, border-color 0.3s ease;
 }
 .top-bar.hidden { transform: translateY(-100%); }
-.top-bar-inner { max-width: 1100px; margin: 0 auto; padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.top-bar-inner { max-width: 1220px; margin: 0 auto; padding: 0.8rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 
-.brand { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; }
-.brand-dots { display: flex; gap: 4px; }
-.brand-dot { width: 8px; height: 8px; border-radius: 50%; }
-.brand-text { font-weight: 600; font-size: 0.95rem; letter-spacing: -0.02em; color: var(--text); }
-.brand-sub { font-weight: 400; color: var(--text-3); margin-left: 0.4rem; }
+.brand { display: flex; align-items: center; gap: 0.7rem; cursor: pointer; }
+.brand-mark { width: 26px; height: 26px; border-radius: 8px; position: relative; overflow: hidden; flex-shrink: 0; background: linear-gradient(135deg, var(--pd) 0%, var(--pd) 48%, var(--pl) 52%, var(--pl) 100%); }
+.brand-text { font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; letter-spacing: -0.01em; color: var(--text); }
+.brand-sub { font-weight: 400; color: var(--text-3); margin-left: 0.4rem; font-family: var(--font-body); }
 
-.controls { display: flex; align-items: center; gap: 0.75rem; }
+.controls { display: flex; align-items: center; gap: 0.65rem; }
 
-.filters { display: none; gap: 0.1rem; background: var(--surface-2); padding: 0.2rem; border-radius: 12px; }
-@media(min-width: 768px) { .filters { display: flex; } }
+.climate-toggle { display: none; align-items: center; gap: 2px; background: var(--surface-2); padding: 3px; border-radius: 11px; border: 1px solid var(--border-subtle); }
+@media(min-width: 768px) { .climate-toggle { display: flex; } }
 .filter-btn {
-  padding: 0.35rem 0.85rem; border-radius: 10px; font-size: 0.8rem; font-weight: 500;
+  padding: 0.38rem 0.9rem; border-radius: 8px; font-size: 0.78rem; font-weight: 600;
   border: none; background: transparent; color: var(--text-3); cursor: pointer;
-  transition: all 0.2s ease; font-family: inherit;
+  transition: all 0.2s ease; font-family: var(--font-display); letter-spacing: 0.01em;
 }
 .filter-btn:hover { color: var(--text); }
-.filter-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-.filter-btn.active.pd-active { color: var(--pd); }
-.filter-btn.active.pl-active { color: var(--pl); }
+.filter-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.filter-btn.active.pd-active { color: var(--pd-ink); }
+.filter-btn.active.pl-active { color: var(--pl-ink); }
 
 .icon-btn {
   width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
@@ -112,6 +128,9 @@ body {
   cursor: pointer; color: var(--text-2); transition: all 0.2s ease;
 }
 .icon-btn:hover { background: var(--surface-3); color: var(--text); }
+.icon-btn:focus-visible, .filter-btn:focus-visible, .search-trigger:focus-visible, .copy-btn:focus-visible, .cmdk-fab:focus-visible, .toc-link:focus-visible, .back-to-top:focus-visible, .copy-all-btn:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
 
 .search-trigger {
   display: flex; align-items: center; gap: 0.5rem; height: 36px;
@@ -120,128 +139,172 @@ body {
 }
 .search-trigger:hover { background: var(--surface-3); color: var(--text); }
 .search-trigger span { font-size: 0.85rem; font-weight: 500; }
-.kbd { font-family: "JetBrains Mono", monospace; font-size: 0.7rem; padding: 0.15rem 0.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text-2); }
+.kbd { font-family: var(--font-mono); font-size: 0.7rem; padding: 0.15rem 0.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text-2); }
 
-.main-container { max-width: 850px; margin: 0 auto; padding: 8rem 1.5rem 6rem; }
+.page-shell { max-width: 1220px; margin: 0 auto; display: grid; grid-template-columns: 230px minmax(0, 850px); gap: 2.5rem; padding: 8rem 1.5rem 6rem; align-items: start; }
+@media(max-width: 1100px) { .page-shell { grid-template-columns: minmax(0, 850px); } .side-toc { display: none; } }
 
-.hero { text-align: center; margin-bottom: 6rem; }
-.hero-eyebrow { font-family: "JetBrains Mono", monospace; font-size: 0.75rem; color: var(--accent); letter-spacing: 0.05em; margin-bottom: 1.5rem; display: inline-block; padding: 0.3rem 0.8rem; background: var(--accent-dim); border-radius: 99px; font-weight: 500; }
-.hero h1 { font-family: "Instrument Serif", serif; font-size: clamp(2.8rem, 8vw, 5rem); font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 1.5rem; color: var(--text); }
-.hero h1 em { font-style: italic; color: var(--text-2); }
-.hero h1 .pd-text { color: var(--pd); }
-.hero h1 .pl-text { color: var(--pl); }
-.hero p { font-size: 1.1rem; color: var(--text-2); max-width: 620px; margin: 0 auto; line-height: 1.6; }
+.side-toc { position: sticky; top: 7.2rem; max-height: calc(100vh - 9rem); overflow-y: auto; padding-right: 0.5rem; }
+.side-toc-label { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 0.8rem; padding-left: 0.9rem; }
+.toc-link { display: flex; align-items: baseline; gap: 0.55rem; padding: 0.38rem 0.9rem; border-radius: 8px; color: var(--text-3); text-decoration: none; font-size: 0.81rem; border-left: 2px solid transparent; transition: all 0.15s ease; line-height: 1.4; font-family: var(--font-body); }
+.toc-link:hover { color: var(--text); background: var(--surface-2); }
+.toc-link .toc-n { font-family: var(--font-mono); font-size: 0.66rem; color: var(--text-3); flex-shrink: 0; }
+.toc-link.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-dim); font-weight: 600; }
+.toc-link.active .toc-n { color: var(--accent); }
+.toc-progress { margin-top: 1rem; padding: 0.8rem 0.9rem; border-radius: 10px; background: var(--surface); border: 1px solid var(--border-subtle); }
+.toc-progress-label { font-size: 0.68rem; color: var(--text-3); font-family: var(--font-mono); margin-bottom: 0.5rem; display: flex; justify-content: space-between; }
+.toc-progress-track { height: 4px; background: var(--surface-3); border-radius: 99px; overflow: hidden; }
+.toc-progress-fill { height: 100%; background: var(--divider-grad); border-radius: 99px; width: 0%; transition: width 0.2s ease; }
+
+.main-container { min-width: 0; }
+
+/* ---------- HERO ---------- */
+.hero { text-align: center; margin-bottom: 4.5rem; position: relative; }
+.hero-habitat { width: 100%; max-width: 620px; height: 64px; margin: 0 auto 2.2rem; position: relative; }
+.hero-eyebrow { font-family: var(--font-mono); font-size: 0.74rem; color: var(--accent); letter-spacing: 0.05em; margin-bottom: 1.4rem; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.32rem 0.85rem; background: var(--accent-dim); border-radius: 99px; font-weight: 500; }
+.hero-eyebrow .dot-live { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(37,122,62,0.5); animation: pulse-live 2s infinite; }
+@keyframes pulse-live { 0% { box-shadow: 0 0 0 0 rgba(37,122,62,0.45); } 70% { box-shadow: 0 0 0 7px rgba(37,122,62,0); } 100% { box-shadow: 0 0 0 0 rgba(37,122,62,0); } }
+.hero h1 { font-family: var(--font-display); font-size: clamp(2.6rem, 7.2vw, 4.4rem); font-weight: 600; line-height: 1.03; letter-spacing: -0.03em; margin-bottom: 1.4rem; color: var(--text); }
+.hero h1 .pd-text { color: var(--pd-ink); }
+.hero h1 .pl-text { color: var(--pl-ink); }
+.hero h1 .vs { color: var(--text-3); font-weight: 400; font-size: 0.7em; padding: 0 0.15em; }
+.hero p { font-size: 1.08rem; color: var(--text-2); max-width: 620px; margin: 0 auto; line-height: 1.65; }
+.hero p code { font-size: 0.88em; }
 .hero-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 2rem; }
-.hero-pill { padding: 0.4rem 0.9rem; border-radius: 99px; font-size: 0.75rem; font-family: "JetBrains Mono", monospace; border: 1px solid var(--border); background: var(--surface); color: var(--text-2); }
+.hero-pill { padding: 0.4rem 0.9rem; border-radius: 99px; font-size: 0.74rem; font-family: var(--font-mono); border: 1px solid var(--border); background: var(--surface); color: var(--text-2); font-weight: 500; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 1.2rem; justify-content: center; margin-top: 1.5rem; font-size: 0.78rem; color: var(--text-3); font-family: var(--font-mono); }
+.hero-meta span { display: flex; align-items: center; gap: 0.4rem; }
 
-section { margin-bottom: 5rem; }
+/* ---------- SECTIONS ---------- */
+section { margin-bottom: 4.6rem; scroll-margin-top: 6rem; }
 section .sec-content { opacity: 0; transform: translateY(15px); transition: opacity 0.6s ease, transform 0.6s ease; }
 section.visible .sec-content { opacity: 1; transform: translateY(0); }
 
-.sec-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 2rem; }
-.sec-num { font-family: "JetBrains Mono", monospace; font-size: 0.8rem; color: var(--text-3); font-weight: 500; }
-.sec-title { font-family: "Instrument Serif", serif; font-size: 2.2rem; font-weight: 400; letter-spacing: -0.02em; color: var(--text); flex: 1; line-height: 1.1; }
-.sec-desc { color: var(--text-2); font-size: 1rem; margin-bottom: 2rem; line-height: 1.7; font-weight: 400; }
+.sec-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.8rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-subtle); position: relative; }
+.sec-header::after { content: ''; position: absolute; left: 0; bottom: -1px; width: 64px; height: 2px; background: var(--divider-grad); }
+.sec-num { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-3); font-weight: 600; }
+.sec-title { font-family: var(--font-display); font-size: 1.9rem; font-weight: 600; letter-spacing: -0.02em; color: var(--text); flex: 1; line-height: 1.15; display: flex; align-items: center; gap: 0.6rem; }
+.sec-anchor { opacity: 0; font-size: 1rem; color: var(--text-3); text-decoration: none; transition: opacity 0.15s ease; font-family: var(--font-mono); }
+.sec-title:hover .sec-anchor { opacity: 1; }
+.sec-desc { color: var(--text-2); font-size: 1rem; margin-bottom: 1.8rem; line-height: 1.7; font-weight: 400; }
 section p { color: var(--text-2); margin-bottom: 1rem; font-size: 0.95rem; line-height: 1.75; }
 
-h3 { font-size: 1.1rem; font-weight: 600; margin: 2.5rem 0 1rem; color: var(--text); display: flex; align-items: center; gap: 0.5rem; letter-spacing: -0.01em; }
-h3 .h3n { font-size: 0.7rem; font-family: "JetBrains Mono", monospace; color: var(--text-3); font-weight: 500; background: var(--surface-2); padding: 0.2rem 0.5rem; border-radius: 6px; }
+h3 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; margin: 2.4rem 0 1rem; color: var(--text); display: flex; align-items: center; gap: 0.5rem; letter-spacing: -0.01em; }
+h3 .h3n { font-size: 0.68rem; font-family: var(--font-mono); color: var(--text-3); font-weight: 500; background: var(--surface-2); padding: 0.2rem 0.5rem; border-radius: 6px; }
 strong { color: var(--text); font-weight: 600; }
-code { font-family: "JetBrains Mono", monospace; font-size: 0.85em; color: var(--accent); background: var(--accent-dim); padding: 0.15em 0.4em; border-radius: 4px; }
+code { font-family: var(--font-mono); font-size: 0.85em; color: var(--accent); background: var(--accent-dim); padding: 0.15em 0.4em; border-radius: 4px; }
 pre code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
 
-.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0 2rem; }
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.4rem 0 1.8rem; position: relative; }
 @media(max-width: 768px) { .compare { grid-template-columns: 1fr; } }
 
-.code-pane { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
-.code-pane:hover { border-color: var(--text-3); box-shadow: var(--shadow); }
-.code-label { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; border-bottom: 1px solid var(--border-subtle); background: var(--surface-2); }
-.lib-tag { font-weight: 600; font-size: 0.75rem; letter-spacing: 0.02em; display: flex; align-items: center; gap: 0.4rem; }
-.lib-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
-.pd-tag { color: var(--pd); } .pd-tag::before { background: var(--pd); }
-.pl-tag { color: var(--pl); } .pl-tag::before { background: var(--pl); }
-.copy-btn { cursor: pointer; background: transparent; border: none; color: var(--text-3); font-family: "JetBrains Mono", monospace; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 6px; transition: all 0.2s ease; display: flex; align-items: center; gap: 0.3rem; }
+.code-pane { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease; }
+.code-pane:hover { border-color: var(--text-3); box-shadow: var(--shadow); transform: translateY(-1px); }
+.code-label { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.9rem; border-bottom: 1px solid var(--border-subtle); background: var(--surface-2); }
+.lib-tag { font-weight: 700; font-size: 0.72rem; letter-spacing: 0.03em; display: flex; align-items: center; gap: 0.4rem; font-family: var(--font-display); text-transform: uppercase; }
+.lib-tag::before { content: ''; width: 7px; height: 7px; border-radius: 2px; transform: rotate(45deg); }
+.pd-tag { color: var(--pd-ink); } .pd-tag::before { background: var(--pd); }
+.pl-tag { color: var(--pl-ink); } .pl-tag::before { background: var(--pl); }
+.copy-btn { cursor: pointer; background: transparent; border: none; color: var(--text-3); font-family: var(--font-mono); font-size: 0.68rem; padding: 0.2rem 0.5rem; border-radius: 6px; transition: all 0.2s ease; display: flex; align-items: center; gap: 0.3rem; }
 .copy-btn:hover { color: var(--text); background: var(--surface-3); }
 .copy-btn.copied { color: var(--green); }
 
-pre { padding: 1rem 1.2rem; overflow-x: auto; font-family: "JetBrains Mono", monospace; font-size: 0.8rem; line-height: 1.7; margin: 0; tab-size: 4; color: var(--text); }
-.kw { color: #7c3aed; } .fn { color: #2563eb; } .st { color: #16a34a; } .num { color: #ea580c; } .attr { color: #c99700; }
+pre { padding: 0.95rem 1.1rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.79rem; line-height: 1.7; margin: 0; tab-size: 4; color: var(--text); }
+.kw { color: #9333ea; } .fn { color: #1d4ed8; } .st { color: #15803d; } .num { color: #c2410c; } .attr { color: #a16207; }
 [data-theme="dark"] .kw { color: #c792ea; } [data-theme="dark"] .fn { color: #82aaff; } [data-theme="dark"] .st { color: #c3e88d; } [data-theme="dark"] .num { color: #f78c6c; } [data-theme="dark"] .attr { color: #ffcb6b; }
 
-.callout { margin: 1.5rem 0; padding: 1.2rem 1.5rem; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); position: relative; overflow: hidden; }
+.callout { margin: 1.4rem 0; padding: 1.1rem 1.4rem; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); position: relative; overflow: hidden; }
 .callout::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
-.callout p { margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-2); }
+.callout p { margin: 0; font-size: 0.89rem; line-height: 1.6; color: var(--text-2); }
 .callout.tip::before { background: var(--accent); } .callout.tip strong { color: var(--accent); }
 .callout.warn::before { background: var(--yellow); } .callout.warn strong { color: var(--yellow); }
-.callout.info::before { background: var(--pl); } .callout.info strong { color: var(--pl); }
+.callout.info::before { background: var(--pl); } .callout.info strong { color: var(--pl-ink); }
 .callout.new::before { background: var(--green); } .callout.new strong { color: var(--green); }
 
-.diff-table, .param-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0 2rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--surface); }
-.diff-table th, .param-table th { padding: 0.8rem 1rem; background: var(--surface-2); color: var(--text-2); font-weight: 600; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
-.diff-table td, .param-table td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border-subtle); color: var(--text-2); vertical-align: top; }
+.diff-table, .param-table { width: 100%; border-collapse: collapse; margin: 1.4rem 0 1.8rem; font-size: 0.84rem; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); }
+.diff-table th, .param-table th { padding: 0.75rem 1rem; background: var(--surface-2); color: var(--text-2); font-weight: 600; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.78rem; font-family: var(--font-display); }
+.diff-table td, .param-table td { padding: 0.65rem 1rem; border-bottom: 1px solid var(--border-subtle); color: var(--text-2); vertical-align: top; }
 .diff-table tr:last-child td, .param-table tr:last-child td { border-bottom: none; }
 .diff-table tr:hover td, .param-table tr:hover td { background: var(--surface-2); }
-.diff-table code, .param-table code { font-size: 0.78rem; }
-.tc-pd { color: var(--pd); font-weight: 600; } .tc-pl { color: var(--pl); font-weight: 600; }
-.param-table td:first-child { font-family: "JetBrains Mono", monospace; color: var(--accent); white-space: nowrap; font-size: 0.8rem; }
-.param-table td:nth-child(2) { color: var(--text-3); font-family: "JetBrains Mono", monospace; font-size: 0.75rem; }
+.diff-table code, .param-table code { font-size: 0.77rem; }
+.tc-pd { color: var(--pd-ink); font-weight: 600; } .tc-pl { color: var(--pl-ink); font-weight: 600; }
+.param-table td:first-child { font-family: var(--font-mono); color: var(--accent); white-space: nowrap; font-size: 0.79rem; }
+.param-table td:nth-child(2) { color: var(--text-3); font-family: var(--font-mono); font-size: 0.74rem; }
 
-.install-grid, .when-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+.install-grid, .when-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.4rem 0; }
 @media(max-width: 768px) { .install-grid, .when-grid { grid-template-columns: 1fr; } }
-.install-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
-.install-card h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
-.install-card pre { background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.8rem; margin: 0; font-size: 0.75rem; }
+.install-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem; }
+.install-card h4 { font-family: var(--font-display); font-size: 0.94rem; font-weight: 600; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
+.install-card pre { background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.8rem; margin: 0; font-size: 0.74rem; }
 
-.when-card { border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; background: var(--surface); }
+.when-card { border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem; background: var(--surface); position: relative; overflow: hidden; }
 .when-card.pd-card { border-top: 3px solid var(--pd); }
 .when-card.pl-card { border-top: 3px solid var(--pl); }
-.when-card h4 { font-weight: 600; margin-bottom: 1rem; font-size: 1.05rem; }
-.when-card h4.pd-title { color: var(--pd); }
-.when-card h4.pl-title { color: var(--pl); }
+.when-card h4 { font-family: var(--font-display); font-weight: 600; margin-bottom: 1rem; font-size: 1.02rem; display: flex; align-items: center; gap: 0.5rem; }
+.when-card h4.pd-title { color: var(--pd-ink); }
+.when-card h4.pl-title { color: var(--pl-ink); }
 .when-card ul { list-style: none; display: grid; gap: 0.6rem; }
-.when-card ul li { color: var(--text-2); padding-left: 1.5rem; position: relative; font-size: 0.88rem; line-height: 1.5; }
+.when-card ul li { color: var(--text-2); padding-left: 1.4rem; position: relative; font-size: 0.87rem; line-height: 1.5; }
 .when-card ul li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
 
-.bench { display: grid; gap: 0.5rem; margin: 1.5rem 0; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
+.bench { display: grid; gap: 0.5rem; margin: 1.4rem 0; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem; }
 .bench-row { display: flex; align-items: center; gap: 1rem; font-size: 0.8rem; }
-.bench-label { width: 120px; flex-shrink: 0; color: var(--text-2); font-size: 0.78rem; }
+.bench-label { width: 120px; flex-shrink: 0; color: var(--text-2); font-size: 0.77rem; }
 .bench-track { flex: 1; height: 8px; background: var(--surface-3); border-radius: 99px; overflow: hidden; }
 .bench-pd, .bench-pl { height: 100%; border-radius: 99px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
 .bench-pd { background: var(--pd); }
 .bench-pl { background: var(--pl); }
-.bench-val { width: 45px; text-align: right; font-family: "JetBrains Mono", monospace; font-size: 0.72rem; color: var(--text-2); }
+.bench-val { width: 45px; text-align: right; font-family: var(--font-mono); font-size: 0.71rem; color: var(--text-2); }
 .bench-legend { display: flex; gap: 1.5rem; margin-bottom: 0.8rem; font-size: 0.75rem; color: var(--text-2); }
 .bench-legend span { display: flex; align-items: center; gap: 0.4rem; }
 .bench-dot { width: 8px; height: 8px; border-radius: 50%; }
 
-.footer { text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-subtle); color: var(--text-3); font-size: 0.8rem; }
+/* habitat divider — the signature element */
+.habitat-divider { height: 2px; margin: 3.4rem 0; background: var(--divider-grad); border-radius: 99px; position: relative; opacity: 0.55; }
+.habitat-divider.big { height: 3px; margin: 4.4rem 0; }
 
-.cmdk-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: flex-start; justify-content: center; padding-top: 15vh; opacity: 0; transition: opacity 0.2s ease; }
+.footer { text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-subtle); color: var(--text-3); font-size: 0.8rem; font-family: var(--font-mono); }
+
+.cmdk-overlay { position: fixed; inset: 0; background: rgba(10, 8, 4, 0.45); backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: flex-start; justify-content: center; padding-top: 15vh; opacity: 0; transition: opacity 0.2s ease; }
 .cmdk-overlay.active { display: flex; opacity: 1; }
-.cmdk-modal { width: 90%; max-width: 600px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 30px 80px rgba(0,0,0,0.2); overflow: hidden; transform: scale(0.98); transition: transform 0.2s ease; }
+.cmdk-modal { width: 90%; max-width: 600px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 30px 80px rgba(0,0,0,0.25); overflow: hidden; transform: scale(0.98); transition: transform 0.2s ease; }
 .cmdk-overlay.active .cmdk-modal { transform: scale(1); }
-.cmdk-input-wrap { display: flex; align-items: center; padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border-subtle); }
-.cmdk-input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-size: 1.1rem; font-family: inherit; font-weight: 400; }
+.cmdk-input-wrap { display: flex; align-items: center; padding: 1.1rem 1.4rem; border-bottom: 1px solid var(--border-subtle); }
+.cmdk-input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-size: 1.05rem; font-family: var(--font-body); font-weight: 400; }
 .cmdk-input::placeholder { color: var(--text-3); }
 .cmdk-results { max-height: 50vh; overflow-y: auto; padding: 0.5rem; }
-.cmdk-result { display: flex; align-items: center; gap: 1rem; padding: 0.8rem 1rem; border-radius: 10px; cursor: pointer; transition: background 0.1s ease; }
+.cmdk-result { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 0.9rem; border-radius: 9px; cursor: pointer; transition: background 0.1s ease; }
 .cmdk-result:hover, .cmdk-result.selected { background: var(--surface-2); }
-.cmdk-res-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--surface-3); font-size: 0.75rem; color: var(--text-2); flex-shrink: 0; font-weight: 600; font-family: "JetBrains Mono", monospace; }
-.cmdk-res-icon.pd { color: var(--pd); background: var(--pd-dim); }
-.cmdk-res-icon.pl { color: var(--pl); background: var(--pl-dim); }
+.cmdk-res-icon { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: var(--surface-3); font-size: 0.7rem; color: var(--text-2); flex-shrink: 0; font-weight: 700; font-family: var(--font-mono); }
+.cmdk-res-icon.pd { color: var(--pd-ink); background: var(--pd-dim); }
+.cmdk-res-icon.pl { color: var(--pl-ink); background: var(--pl-dim); }
 .cmdk-res-content { flex: 1; min-width: 0; }
-.cmdk-res-title { font-size: 0.9rem; color: var(--text); margin-bottom: 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
-.cmdk-res-desc { font-size: 0.75rem; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmdk-res-title { font-size: 0.88rem; color: var(--text); margin-bottom: 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.cmdk-res-desc { font-size: 0.73rem; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cmdk-res-title mark, .cmdk-res-desc mark { background: transparent; color: var(--accent); font-weight: 700; border-radius: 2px; padding: 0; }
 .cmdk-empty { padding: 2rem; text-align: center; color: var(--text-3); font-size: 0.9rem; }
 
-.cmdk-fab { position: fixed; bottom: 2rem; right: 2rem; width: 52px; height: 52px; border-radius: 16px; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 90; box-shadow: 0 10px 30px rgba(111, 91, 255, 0.3); transition: transform 0.2s ease, background 0.2s ease; }
+.cmdk-fab { position: fixed; bottom: 2rem; right: 2rem; width: 52px; height: 52px; border-radius: 15px; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 90; box-shadow: 0 10px 30px rgba(122, 92, 255, 0.35); transition: transform 0.2s ease, background 0.2s ease; }
 .cmdk-fab:hover { transform: translateY(-2px) scale(1.05); }
-.cmdk-fab svg { width: 22px; height: 22px; }
-@media(max-width: 768px) { .cmdk-fab { bottom: 1rem; right: 1rem; width: 48px; height: 48px; border-radius: 14px; } }
+.cmdk-fab svg { width: 21px; height: 21px; }
+@media(max-width: 768px) { .cmdk-fab { bottom: 1rem; right: 1rem; width: 48px; height: 48px; border-radius: 13px; } }
+
+.back-to-top { position: fixed; bottom: 2rem; right: 5.2rem; width: 44px; height: 44px; border-radius: 13px; background: var(--surface); border: 1px solid var(--border); color: var(--text-2); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 90; box-shadow: var(--shadow); opacity: 0; pointer-events: none; transform: translateY(8px); transition: all 0.25s ease; }
+.back-to-top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.back-to-top:hover { color: var(--text); border-color: var(--text-3); }
+@media(max-width: 768px) { .back-to-top { bottom: 1rem; right: 4.4rem; width: 40px; height: 40px; } }
 
 .highlight-flash { animation: flash 1.2s ease; }
-@keyframes flash { 0% { box-shadow: 0 0 0 0 rgba(111, 91, 255, 0.4); } 50% { box-shadow: 0 0 0 8px rgba(111, 91, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(111, 91, 255, 0); } }
+@keyframes flash { 0% { box-shadow: 0 0 0 0 rgba(122, 92, 255, 0.4); } 50% { box-shadow: 0 0 0 8px rgba(122, 92, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(122, 92, 255, 0); } }
+
+.tag-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.6rem 0 1.6rem; }
+.mini-tag { font-family: var(--font-mono); font-size: 0.68rem; padding: 0.25rem 0.6rem; border-radius: 99px; border: 1px solid var(--border); color: var(--text-3); background: var(--surface); }
+.mini-tag.new-tag { color: var(--green); border-color: var(--green); background: rgba(37,122,62,0.06); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
 </style>
 </head>
 <body>
@@ -251,18 +314,14 @@ pre { padding: 1rem 1.2rem; overflow-x: auto; font-family: "JetBrains Mono", mon
 <div class="top-bar" id="top-bar">
   <div class="top-bar-inner">
     <div class="brand" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-      <div class="brand-dots">
-        <div class="brand-dot" style="background:var(--pd)"></div>
-        <div class="brand-dot" style="background:var(--accent)"></div>
-        <div class="brand-dot" style="background:var(--pl)"></div>
-      </div>
-      <div class="brand-text">2026 Reference <span class="brand-sub">Pandas & Polars</span></div>
+      <div class="brand-mark"></div>
+      <div class="brand-text">Two Bears<span class="brand-sub">Pandas 3.0 vs Polars 1.x, 2026</span></div>
     </div>
     <div class="controls">
-      <div class="filters">
+      <div class="climate-toggle">
         <button class="filter-btn active" onclick="setFilter('all', this)">Both</button>
-        <button class="filter-btn" onclick="setFilter('pd', this)">Pandas</button>
-        <button class="filter-btn" onclick="setFilter('pl', this)">Polars</button>
+        <button class="filter-btn" onclick="setFilter('pd', this)">🐼 Pandas</button>
+        <button class="filter-btn" onclick="setFilter('pl', this)">🐻‍❄️ Polars</button>
       </div>
       <div class="search-trigger" onclick="openCmdk()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -276,18 +335,44 @@ pre { padding: 1rem 1.2rem; overflow-x: auto; font-family: "JetBrains Mono", mon
   </div>
 </div>
 
+<div class="page-shell">
+
+<nav class="side-toc" id="side-toc" aria-label="Table of contents">
+  <div class="side-toc-label">On this page</div>
+</nav>
+
 <div class="main-container">
 
 <div class="hero">
-  <div class="hero-eyebrow">2026 Edition · Updated July 8, 2026 · 20 Sections</div>
-  <h1><span class="pd-text">Pandas 3.0</span> <em>&</em> <span class="pl-text">Polars 1.x</span></h1>
-  <p>The complete 2026 reference — side-by-side patterns for every operation, from basic selection to streaming pipelines. Expanded window functions, full pivot coverage, type casting, custom UDFs, and the Polars lazy API.</p>
+  <svg class="hero-habitat" viewBox="0 0 620 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="habitatGrad" x1="0" y1="0" x2="620" y2="0" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="var(--pd)"/>
+        <stop offset="42%" stop-color="var(--pd)"/>
+        <stop offset="50%" stop-color="var(--accent)"/>
+        <stop offset="58%" stop-color="var(--pl)"/>
+        <stop offset="100%" stop-color="var(--pl)"/>
+      </linearGradient>
+    </defs>
+    <path d="M0 40 Q 40 16, 80 34 T 160 30 T 240 38 T 310 32 T 390 30 T 470 38 T 550 32 T 620 36" stroke="url(#habitatGrad)" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
+    <circle cx="150" cy="32" r="3" fill="var(--pd)"/>
+    <circle cx="310" cy="32" r="3.5" fill="var(--accent)"/>
+    <circle cx="470" cy="32" r="3" fill="var(--pl)"/>
+  </svg>
+  <div class="hero-eyebrow"><span class="dot-live"></span>2026 Field Guide · Updated July 9, 2026</div>
+  <h1><span class="pd-text">Pandas 3.0</span><span class="vs">×</span><span class="pl-text">Polars 1.42</span></h1>
+  <p>Two very different animals for the same job. Every pattern below is shown twice — once in bamboo, once on ice — from a first <code>DataFrame</code> to streaming terabyte pipelines, with the syntax that actually shipped this year.</p>
   <div class="hero-pills">
-    <span class="hero-pill" style="color:var(--pd);border-color:var(--pd)">Pandas 3.0.3 · Jan 2026</span>
-    <span class="hero-pill" style="color:var(--pl);border-color:var(--pl)">Polars 1.39 · Apr 2026</span>
-    <span class="hero-pill" style="color:var(--accent);border-color:var(--accent)">Apache Arrow backend</span>
+    <span class="hero-pill" style="color:var(--pd-ink);border-color:var(--pd)">🐼 Pandas 3.0.4 · May 2026</span>
+    <span class="hero-pill" style="color:var(--pl-ink);border-color:var(--pl)">🐻‍❄️ Polars 1.42.1 · Jul 2026</span>
+    <span class="hero-pill" style="color:var(--accent);border-color:var(--accent)">Zero-copy Arrow bridge</span>
     <span class="hero-pill" style="color:var(--green);border-color:var(--green)">Copy-on-Write default</span>
-    <span class="hero-pill" style="color:var(--yellow);border-color:var(--yellow)">LazyFrame.pivot new</span>
+    <span class="hero-pill" style="color:var(--yellow);border-color:var(--yellow)">pd.col() expressions new</span>
+  </div>
+  <div class="hero-meta">
+    <span>📖 ~26 min read</span>
+    <span>🧩 230+ paired snippets</span>
+    <span>⌘K to jump to anything</span>
   </div>
 </div>
 
@@ -295,30 +380,33 @@ pre { padding: 1rem 1.2rem; overflow-x: auto; font-family: "JetBrains Mono", mon
   <div class="sec-content">
     <div class="sec-header">
       <span class="sec-num">01</span>
-      <h2 class="sec-title">Installation & Setup</h2>
+      <h2 class="sec-title">Setup & Installation<a href="#install" class="sec-anchor">#</a></h2>
     </div>
-    <p class="sec-desc">Both libraries install via pip. Polars ships with zero hard dependencies; Pandas benefits significantly from PyArrow for its new string backend and zero-copy conversions.</p>
+    <p class="sec-desc">Both install via pip. Polars ships with zero required dependencies; Pandas leans on PyArrow for its default string dtype, zero-copy Arrow conversions, and the optional GPU backend.</p>
     <div class="install-grid">
       <div class="install-card">
-        <h4 style="color:var(--pd)"><span style="width:8px;height:8px;border-radius:50%;background:var(--pd);display:inline-block"></span> Pandas 3.0</h4>
-        <pre>pip install "pandas>=3.0"
+        <h4 style="color:var(--pd-ink)">🐼 Pandas 3.0.4</h4>
+        <pre>pip install "pandas==3.0.4"
 pip install pyarrow</pre>
-        <p style="margin-top:.8rem;font-size:.8rem;color:var(--text-2)">PyArrow enables the native <code>str</code> dtype, zero-copy Arrow conversions, and GPU compute backend.</p>
+        <p style="margin-top:.8rem;font-size:.8rem;color:var(--text-2)">PyArrow enables the native <code>str</code> dtype, zero-copy Arrow conversions, and the <code>compute.backend="cudf"</code> GPU path.</p>
       </div>
       <div class="install-card">
-        <h4 style="color:var(--pl)"><span style="width:8px;height:8px;border-radius:50%;background:var(--pl);display:inline-block"></span> Polars 1.x</h4>
-        <pre>pip install "polars>=1.0"
+        <h4 style="color:var(--pl-ink)">🐻‍❄️ Polars 1.42.1</h4>
+        <pre>pip install "polars==1.42.1"
 pip install "polars[all]"</pre>
-        <p style="margin-top:.8rem;font-size:.8rem;color:var(--text-2)"><code>polars[all]</code> adds S3/GCS/Azure I/O, timezone support, and the built-in SQL engine.</p>
+        <p style="margin-top:.8rem;font-size:.8rem;color:var(--text-2)"><code>polars[all]</code> adds S3/GCS/Azure I/O, Iceberg/Delta support, timezones, and the SQL engine.</p>
       </div>
     </div>
-    <h3>Verify Installation</h3>
+    <h3>Verify installation</h3>
     <div class="code-pane" style="max-width:640px">
       <div class="code-label"><span class="lib-tag" style="color:var(--text-2)"><span style="background:var(--text-2)"></span>Verify</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
       <pre><span class="kw">import</span> pandas <span class="kw">as</span> pd
 <span class="kw">import</span> polars <span class="kw">as</span> pl
-<span class="fn">print</span>(pd.__version__)
-<span class="fn">print</span>(pl.__version__)</pre>
+<span class="fn">print</span>(pd.__version__, pl.__version__)
+<span class="fn">print</span>(pd.options.future.infer_string)</pre>
+    </div>
+    <div class="callout tip">
+      <p><strong>Pin exact versions in production.</strong> Polars ships breaking releases more often than Pandas — run <code>polars-upgrade</code> (the maintainers' automated migration tool) before jumping a minor version in a pipeline you depend on.</p>
     </div>
   </div>
 </section>
@@ -327,16 +415,14 @@ pip install "polars[all]"</pre>
   <div class="sec-content">
     <div class="sec-header">
       <span class="sec-num">02</span>
-      <h2 class="sec-title">Creating DataFrames</h2>
+      <h2 class="sec-title">Creating DataFrames<a href="#dataframes" class="sec-anchor">#</a></h2>
     </div>
-    <p class="sec-desc">Both share a dict-based constructor. Polars DataFrames are immutable and always thread-safe. Pandas 3.0 strings now default to the <code>str</code> dtype backed by PyArrow, not NumPy <code>object</code>.</p>
+    <p class="sec-desc">Both share a dict-based constructor. Polars DataFrames are immutable and always thread-safe. Pandas 3.0 strings default to the <code>str</code> dtype backed by PyArrow, not NumPy <code>object</code>.</p>
     <h3>From a dict</h3>
     <div class="compare">
       <div class="code-pane">
         <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
-        <pre><span class="kw">import</span> pandas <span class="kw">as</span> pd
-
-df = pd.DataFrame({
+        <pre>df = pd.DataFrame({
     <span class="st">"name"</span>:  [<span class="st">"Alice"</span>, <span class="st">"Bob"</span>, <span class="st">"Carol"</span>],
     <span class="st">"age"</span>:   [<span class="num">28</span>, <span class="num">34</span>, <span class="num">22</span>],
     <span class="st">"score"</span>: [<span class="num">91.5</span>, <span class="num">78.0</span>, <span class="num">95.2</span>],
@@ -347,9 +433,7 @@ df.columns.tolist()</pre>
       </div>
       <div class="code-pane">
         <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
-        <pre><span class="kw">import</span> polars <span class="kw">as</span> pl
-
-df = pl.DataFrame({
+        <pre>df = pl.DataFrame({
     <span class="st">"name"</span>:  [<span class="st">"Alice"</span>, <span class="st">"Bob"</span>, <span class="st">"Carol"</span>],
     <span class="st">"age"</span>:   [<span class="num">28</span>, <span class="num">34</span>, <span class="num">22</span>],
     <span class="st">"score"</span>: [<span class="num">91.5</span>, <span class="num">78.0</span>, <span class="num">95.2</span>],
@@ -406,14 +490,24 @@ df.dtypes
 df.estimated_size(<span class="st">"mb"</span>)</pre>
       </div>
     </div>
+    <h3>Sortedness metadata <span class="h3n">Polars 1.42</span></h3>
+    <p>Polars can now report whether a column is already sorted without re-scanning it — useful before an ASOF join or a rolling window, where sortedness changes the algorithm the engine picks.</p>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pl-tag">Polars — is_sorted()</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>df.is_sorted(<span class="st">"date"</span>)
+df[<span class="st">"date"</span>].is_sorted()
+df.set_sorted(<span class="st">"date"</span>)  <span class="fn"># assert sortedness without a scan</span></pre>
+    </div>
   </div>
 </section>
+
+<div class="habitat-divider"></div>
 
 <section id="io">
   <div class="sec-content">
     <div class="sec-header">
       <span class="sec-num">03</span>
-      <h2 class="sec-title">Reading & Writing Data</h2>
+      <h2 class="sec-title">Reading & Writing Data<a href="#io" class="sec-anchor">#</a></h2>
     </div>
     <p class="sec-desc">Polars uses <code>scan_*</code> for lazy reads — nothing loads until <code>.collect()</code>. Pandas reads eagerly. Parquet is the gold standard: columnar, compressed, dtype-preserving.</p>
     <h3>CSV</h3>
@@ -497,6 +591,18 @@ df = pl.read_excel(
 df.write_excel(<span class="st">"out.xlsx"</span>)</pre>
       </div>
     </div>
+    <h3>Lakehouse formats — Iceberg & Delta <span class="h3n">Polars, expanded 2026</span></h3>
+    <p>Polars reads Apache Iceberg and Delta Lake tables lazily, pushing filters into the catalog so only matching files and row groups are touched.</p>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pl-tag">Polars — lakehouse scans</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>lf = pl.scan_iceberg(<span class="st">"s3://bucket/warehouse/sales"</span>)
+lf = pl.scan_delta(<span class="st">"s3://bucket/delta/orders"</span>, version=<span class="num">7</span>)
+
+df = (
+    lf.filter(pl.col(<span class="st">"order_date"</span>) >= <span class="st">"2026-01-01"</span>)
+      .collect(engine=<span class="st">"streaming"</span>)
+)</pre>
+    </div>
     <div class="callout tip">
       <p><strong>Parquet over CSV:</strong> A 1 GB CSV typically becomes ~90 MB Parquet with zstd, reads 15–30× faster, and preserves dtypes exactly. Both libraries push filters and column selection into the file reader — only the bytes you need are ever loaded.</p>
     </div>
@@ -507,9 +613,9 @@ df.write_excel(<span class="st">"out.xlsx"</span>)</pre>
   <div class="sec-content">
     <div class="sec-header">
       <span class="sec-num">04</span>
-      <h2 class="sec-title">Selecting & Filtering</h2>
+      <h2 class="sec-title">Selecting & Filtering<a href="#select" class="sec-anchor">#</a></h2>
     </div>
-    <p class="sec-desc">Polars uses a pure expression API — no <code>.loc</code>/<code>.iloc</code> confusion, no bracket ambiguity. Pandas 3.0 makes slicing fully safe with mandatory Copy-on-Write.</p>
+    <p class="sec-desc">Polars uses a pure expression API — no <code>.loc</code>/<code>.iloc</code> confusion, no bracket ambiguity. Pandas 3.0 makes slicing fully safe with mandatory Copy-on-Write, and adds <code>pd.col()</code> as a lambda-free filter expression.</p>
     <h3>Select columns</h3>
     <div class="compare">
       <div class="code-pane">
@@ -561,6 +667,13 @@ df.filter(
 df.filter(pl.col(<span class="st">"name"</span>).is_not_null())</pre>
       </div>
     </div>
+    <h3>Filter with <code>pd.col()</code> <span class="h3n">Pandas 3.0 — new</span></h3>
+    <p>Pandas 3.0 introduces <code>pd.col()</code>, a deferred column reference that works anywhere a callable was previously required — <code>DataFrame.loc[]</code>, <code>assign()</code>, getitem/setitem — closing part of the expressiveness gap with Polars' <code>pl.col()</code>.</p>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pd-tag">Pandas — pd.col() in .loc</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>df.loc[pd.col(<span class="st">"speed"</span>) > <span class="num">105</span>]
+df.loc[(pd.col(<span class="st">"age"</span>) > <span class="num">25</span>) & (pd.col(<span class="st">"score"</span>) >= <span class="num">90</span>)]</pre>
+    </div>
     <h3>Slicing & sampling</h3>
     <div class="compare">
       <div class="code-pane">
@@ -582,14 +695,15 @@ df.sample(fraction=<span class="num">0.1</span>, seed=<span class="num">42</span
     </div>
   </div>
 </section>
+<div class="habitat-divider"></div>
 
 <section id="transform">
   <div class="sec-content">
     <div class="sec-header">
       <span class="sec-num">05</span>
-      <h2 class="sec-title">Transforming Columns</h2>
+      <h2 class="sec-title">Transforming Columns<a href="#transform" class="sec-anchor">#</a></h2>
     </div>
-    <p class="sec-desc">Polars' <code>with_columns</code> evaluates all expressions in parallel. Pandas 3.0's <code>assign</code> chains cleanly with Copy-on-Write — no more accidental mutations to the original DataFrame.</p>
+    <p class="sec-desc">Polars' <code>with_columns</code> evaluates every expression in parallel. Pandas 3.0's <code>assign</code> chains cleanly with Copy-on-Write, and <code>pd.col()</code> now lets you skip the lambda entirely — syntax borrowed straight from Polars and PySpark.</p>
     <h3>Add / update columns</h3>
     <div class="compare">
       <div class="code-pane">
@@ -610,6 +724,38 @@ df = df.assign(
     (pl.col(<span class="st">"age"</span>) >= <span class="num">40</span>).alias(<span class="st">"senior"</span>),
 )</pre>
       </div>
+    </div>
+    <h3>Expression syntax without lambdas <span class="h3n">Pandas 3.0 — pd.col()</span></h3>
+    <p>Before pandas 3.0, a loop that builds lambdas closing over a loop variable is a classic footgun — every lambda captures the same variable name, not its value at creation time. <code>pd.col()</code> builds a real expression object instead, so it evaluates correctly and supports method chaining.</p>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas &lt; 3.0 — the footgun</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>results = {}
+<span class="kw">for</span> factor <span class="kw">in</span> [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>]:
+    results[<span class="st">f"x_times_</span>{factor}<span class="st">"</span>] = (
+        <span class="kw">lambda</span> df: df[<span class="st">"x"</span>] * factor
+    )
+df = df.assign(**results)
+<span class="fn"># all three columns multiply by 30 — factor</span>
+<span class="fn"># is looked up when the lambda RUNS, not when made</span></pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas 3.0 — pd.col()</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>results = {
+    <span class="st">f"x_times_</span>{factor}<span class="st">"</span>: pd.col(<span class="st">"x"</span>) * factor
+    <span class="kw">for</span> factor <span class="kw">in</span> [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>]
+}
+df = df.assign(**results)
+<span class="fn"># each expression captures its own value — correct</span>
+
+df = df.assign(
+    total = pd.col(<span class="st">"price"</span>) * pd.col(<span class="st">"quantity"</span>),
+    name_upper = pd.col(<span class="st">"name"</span>).str.upper(),
+)</pre>
+      </div>
+    </div>
+    <div class="callout warn">
+      <p><strong>Scope, as of 3.0.4:</strong> <code>pd.col()</code> works in <code>assign()</code>, <code>.loc[]</code>, and getitem/setitem — anywhere that accepted <code>lambda df: df[col]</code>. It does <em>not</em> yet work inside <code>groupby().agg()</code>, unlike Polars' <code>pl.col()</code>, which is valid everywhere an expression is expected. The pandas team has flagged wider support as a likely follow-up.</p>
     </div>
     <h3>Conditional logic</h3>
     <div class="compare">
@@ -668,9 +814,9 @@ df.rename({c: c.lower() <span class="kw">for</span> c <span class="kw">in</span>
   <div class="sec-content">
     <div class="sec-header">
       <span class="sec-num">06</span>
-      <h2 class="sec-title">Sorting & Ranking</h2>
+      <h2 class="sec-title">Sorting & Ranking<a href="#sort" class="sec-anchor">#</a></h2>
     </div>
-    <p class="sec-desc">Multi-key sorting, null placement control, and stable sort options. Both support per-column sort direction.</p>
+    <p class="sec-desc">Multi-key sorting, null placement control, and stable sort options. Both support per-column sort direction; Polars can now skip re-sorting entirely when it already knows a column is sorted.</p>
     <h3>Sort</h3>
     <div class="compare">
       <div class="code-pane">
@@ -746,13 +892,15 @@ df[<span class="st">"row_num"</span>]  = df[<span class="st">"score"</span>].ran
   </div>
 </section>
 
+<div class="habitat-divider"></div>
+
 <section id="groupby">
   <div class="sec-content">
     <div class="sec-header">
       <span class="sec-num">07</span>
-      <h2 class="sec-title">GroupBy & Aggregation</h2>
+      <h2 class="sec-title">GroupBy & Aggregation<a href="#groupby" class="sec-anchor">#</a></h2>
     </div>
-    <p class="sec-desc">Both libraries support multi-column grouping and multi-function aggregation. Polars evaluates all aggregations in parallel across CPU cores. Pandas 3.0 uses named-tuple syntax for clean output column naming.</p>
+    <p class="sec-desc">Both libraries support multi-column grouping and multi-function aggregation. Polars evaluates every aggregation in parallel across CPU cores. Pandas 3.0 uses named-tuple syntax for clean output column naming.</p>
     <h3>Basic aggregation</h3>
     <div class="compare">
       <div class="code-pane">
@@ -831,14 +979,18 @@ df[<span class="st">"cum"</span>]  = df[<span class="st">"value"</span>].expandi
 )</pre>
       </div>
     </div>
+    <div class="callout tip">
+      <p><strong>Named-aggregation tip:</strong> Pandas' <code>(column, func)</code> tuple syntax inside <code>.agg()</code> is the modern replacement for the old dict-of-dicts style — it gives you flat, predictable output column names without a <code>reset_index()</code> dance beyond the one shown above.</p>
+    </div>
   </div>
 </section>
+<div class="habitat-divider big"></div>
 
 <section id="window">
   <div class="sec-content">
     <div class="sec-header">
       <span class="sec-num">08</span>
-      <h2 class="sec-title">Window Functions</h2>
+      <h2 class="sec-title">Window Functions<a href="#window" class="sec-anchor">#</a></h2>
     </div>
     <p class="sec-desc">Window functions compute per-row results scoped to a group — without collapsing rows the way <code>groupby</code> does. Polars uses <code>.over("key")</code> as its SQL <code>PARTITION BY</code>. Pandas uses <code>transform</code>, <code>cumsum</code>, <code>shift</code>, and <code>rank</code> on grouped objects.</p>
     <h3>Rank within group</h3>
@@ -1092,14 +1244,15 @@ df.with_columns(
     </div>
   </div>
 </section>
+<div class="habitat-divider"></div>
 
 <section id="pivot">
   <div class="sec-content">
     <div class="sec-header">
       <span class="sec-num">09</span>
-      <h2 class="sec-title">Pivot & Reshape</h2>
+      <h2 class="sec-title">Pivot & Reshape<a href="#pivot" class="sec-anchor">#</a></h2>
     </div>
-    <p class="sec-desc">Reshaping between wide and long format is one of the most common data-wrangling tasks. Pandas has rich pivot support with margins and normalization. Polars is more streamlined. Polars 1.36 added <code>LazyFrame.pivot</code>.</p>
+    <p class="sec-desc">Reshaping between wide and long format is one of the most common data-wrangling tasks. Pandas has rich pivot support with margins and normalization. Polars is more streamlined, and its pivot now also works directly inside a lazy pipeline.</p>
     <h3>pivot() — simple rotation, no aggregation <span class="h3n">one value per cell</span></h3>
     <div class="compare">
       <div class="code-pane">
@@ -1181,6 +1334,22 @@ wide = agg.pivot(
 )</pre>
       </div>
     </div>
+    <h3>Pivot inside a lazy pipeline <span class="h3n">Polars — LazyFrame.pivot</span></h3>
+    <p>When the distinct column values are known ahead of time, Polars can pivot without materializing the frame first, so the reshape stays inside the same optimized, streaming-compatible query plan as everything around it.</p>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pl-tag">Polars — LazyFrame.pivot()</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>wide = (
+    pl.scan_parquet(<span class="st">"sales/**.parquet"</span>)
+      .filter(pl.col(<span class="st">"year"</span>) == <span class="num">2026</span>)
+      .pivot(
+          index=<span class="st">"region"</span>,
+          on=<span class="st">"quarter"</span>,
+          values=<span class="st">"revenue"</span>,
+          aggregate_function=<span class="st">"sum"</span>,
+      )
+      .collect(engine=<span class="st">"streaming"</span>)
+)</pre>
+    </div>
     <h3>Key parameters — pd.pivot_table()</h3>
     <table class="param-table">
       <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
@@ -1236,8 +1405,7 @@ long = df.unpivot(
       <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
       <pre>stacked   = df.set_index([<span class="st">"region"</span>, <span class="st">"product"</span>]).stack()
 unstacked = df.set_index(<span class="st">"region"</span>).unstack(<span class="st">"product"</span>)
-unstacked.columns = [<span class="st">"_"</span>.join(c) <span class="kw">for</span> c <span class="kw">in</span> unstacked.columns]
-stacked   = df.set_index([<span class="st">"region"</span>, <span class="st">"product"</span>]).stack(future_stack=<span class="kw">True</span>)</pre>
+unstacked.columns = [<span class="st">"_"</span>.join(c) <span class="kw">for</span> c <span class="kw">in</span> unstacked.columns]</pre>
     </div>
     <h3>crosstab() — frequency / contingency tables <span class="h3n">Pandas only</span></h3>
     <div class="code-pane" style="max-width:640px">
@@ -1256,9 +1424,6 @@ ct_val = pd.crosstab(
     margins_name=<span class="st">"Overall"</span>,
 )</pre>
     </div>
-    <div class="callout info">
-      <p><strong>Polars 1.36 added LazyFrame.pivot.</strong> When the unique column values are known in advance, you can pivot inside a lazy pipeline without materialising first — pass the known column names as <code>values=[...]</code> to the eager pivot call, or use the lazy variant for streaming-compatible reshaping in production pipelines.</p>
-    </div>
   </div>
 </section>
 
@@ -1266,9 +1431,9 @@ ct_val = pd.crosstab(
   <div class="sec-content">
     <div class="sec-header">
       <span class="sec-num">10</span>
-      <h2 class="sec-title">Joins & Merges</h2>
+      <h2 class="sec-title">Joins & Merges<a href="#joins" class="sec-anchor">#</a></h2>
     </div>
-    <p class="sec-desc">Polars uses a multi-threaded hash join engine that is typically 3–9× faster than Pandas for large datasets. Both support all major join types; Polars adds native semi, anti, and streaming ASOF joins.</p>
+    <p class="sec-desc">Polars uses a multi-threaded hash join engine that is typically 3–9× faster than Pandas for large datasets. Both support all major join types; Polars adds native semi, anti, and now streaming-compatible ASOF and merge joins.</p>
     <table class="diff-table">
       <thead><tr><th>Join type</th><th class="tc-pd">Pandas</th><th class="tc-pl">Polars</th></tr></thead>
       <tbody>
@@ -1280,6 +1445,7 @@ ct_val = pd.crosstab(
         <tr><td>Semi join</td><td><code>df[df.id.isin(other.id)]</code></td><td><code>how="semi"</code></td></tr>
         <tr><td>Anti join</td><td><code>df[~df.id.isin(other.id)]</code></td><td><code>how="anti"</code></td></tr>
         <tr><td>ASOF join</td><td><code>pd.merge_asof()</code></td><td><code>.join_asof()</code></td></tr>
+        <tr><td>Merge (sort-merge)</td><td>n/a — hash join only</td><td>auto-selected by planner, 1.4x+</td></tr>
       </tbody>
     </table>
     <h3>Standard join</h3>
@@ -1328,13 +1494,19 @@ result = orders.join(
 )</pre>
       </div>
       <div class="code-pane">
-        <div class="code-label"><span class="lib-tag pl-tag">Polars — streaming ASOF (1.39+)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <div class="code-label"><span class="lib-tag pl-tag">Polars — streaming ASOF</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
         <pre>result = trades.join_asof(
     quotes,
     on=<span class="st">"ts"</span>,
     by=<span class="st">"ticker"</span>,
     strategy=<span class="st">"backward"</span>,
     tolerance=<span class="st">"1s"</span>,
+)
+
+lazy_result = (
+    trades_lf.set_sorted(<span class="st">"ts"</span>)
+      .join_asof(quotes_lf.set_sorted(<span class="st">"ts"</span>), on=<span class="st">"ts"</span>, by=<span class="st">"ticker"</span>)
+      .collect(engine=<span class="st">"streaming"</span>)
 )</pre>
       </div>
     </div>
@@ -1353,16 +1525,20 @@ pl.concat([df1, df2], how=<span class="st">"horizontal"</span>)
 pl.concat([df1, df2], how=<span class="st">"diagonal"</span>)</pre>
       </div>
     </div>
+    <div class="callout info">
+      <p><strong>Polars 1.41 merge-join:</strong> when both sides of a join are known to be sorted on the join key, the streaming query planner can pick a sort-merge join instead of a hash join — lower peak memory on very large joins, verifiable with <code>lf.explain(streaming=True)</code>.</p>
+    </div>
   </div>
 </section>
+<div class="habitat-divider"></div>
 
 <section id="dedup">
   <div class="sec-content">
     <div class="sec-header">
       <span class="sec-num">11</span>
-      <h2 class="sec-title">Deduplication</h2>
+      <h2 class="sec-title">Deduplication<a href="#dedup" class="sec-anchor">#</a></h2>
     </div>
-    <p class="sec-desc">Finding and removing duplicate rows is a routine step in data cleaning. Both libraries support subset-based deduplication and control over which duplicate to keep.</p>
+    <p class="sec-desc">Finding and removing duplicate rows is a routine cleaning step. Both libraries support subset-based deduplication and control over which duplicate to keep.</p>
     <h3>Drop duplicates</h3>
     <div class="compare">
       <div class="code-pane">
@@ -1408,7 +1584,7 @@ df.with_columns(
   <div class="sec-content">
     <div class="sec-header">
       <span class="sec-num">12</span>
-      <h2 class="sec-title">Types & Schema</h2>
+      <h2 class="sec-title">Types & Schema<a href="#types" class="sec-anchor">#</a></h2>
     </div>
     <p class="sec-desc">Explicit dtype management is essential for memory efficiency and correctness. Polars uses <code>cast()</code> with optional <code>strict=False</code> for lossy conversions. Pandas uses <code>astype()</code>.</p>
     <h3>Cast columns</h3>
@@ -1454,23 +1630,67 @@ pl.col(<span class="st">"date"</span>).str.to_datetime(
     <table class="diff-table">
       <thead><tr><th>Use case</th><th class="tc-pd">Pandas 3.0</th><th class="tc-pl">Polars</th></tr></thead>
       <tbody>
-        <tr><td>Integers</td><td><code>int32/64</code>, <code>Int64</code> (nullable)</td><td><code>Int8/16/32/64</code>, <code>UInt8/16/32/64</code></td></tr>
+        <tr><td>Integers</td><td><code>int32/64</code>, <code>Int64</code> (nullable)</td><td><code>Int8/16/32/64</code>, <code>UInt8/16/32/64</code>, <code>Int128</code></td></tr>
         <tr><td>Floats</td><td><code>float32/64</code></td><td><code>Float32</code>, <code>Float64</code></td></tr>
         <tr><td>Strings</td><td><code>str</code> (PyArrow, default in 3.0)</td><td><code>String</code> / <code>Utf8</code></td></tr>
         <tr><td>Booleans</td><td><code>bool</code>, <code>boolean</code> (nullable)</td><td><code>Boolean</code></td></tr>
         <tr><td>Categories</td><td><code>category</code></td><td><code>Categorical</code>, <code>Enum</code></td></tr>
-        <tr><td>Datetimes</td><td><code>datetime64[us]</code> (preferred in 3.0)</td><td><code>Datetime</code>, <code>Date</code>, <code>Duration</code>, <code>Time</code></td></tr>
+        <tr><td>Decimal</td><td><code>object</code>-backed, limited</td><td><code>Decimal</code> (stabilized)</td></tr>
+        <tr><td>Datetimes</td><td><code>datetime64[us]</code> (default in 3.0)</td><td><code>Datetime</code>, <code>Date</code>, <code>Duration</code>, <code>Time</code></td></tr>
         <tr><td>Nested</td><td><code>object</code> (limited)</td><td><code>List</code>, <code>Array</code>, <code>Struct</code></td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
-<section id="apply">
+<div class="habitat-divider"></div>
+
+<section id="categoricals">
   <div class="sec-content">
     <div class="sec-header">
       <span class="sec-num">13</span>
-      <h2 class="sec-title">Apply & Custom Functions</h2>
+      <h2 class="sec-title">Categoricals & Enums<a href="#categoricals" class="sec-anchor">#</a></h2>
+    </div>
+    <p class="sec-desc">Low-cardinality string columns — status codes, country names, log levels — waste memory as plain strings. Both libraries dictionary-encode them; Polars additionally distinguishes an open <code>Categorical</code> from a closed, order-guaranteed <code>Enum</code>.</p>
+    <h3>Basic categorical</h3>
+    <div class="compare">
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pd-tag">Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df[<span class="st">"status"</span>] = df[<span class="st">"status"</span>].astype(<span class="st">"category"</span>)
+df[<span class="st">"status"</span>] = df[<span class="st">"status"</span>].cat.set_categories(
+    [<span class="st">"pending"</span>, <span class="st">"active"</span>, <span class="st">"closed"</span>], ordered=<span class="kw">True</span>
+)
+df[<span class="st">"status"</span>].cat.codes
+df[<span class="st">"status"</span>].cat.categories</pre>
+      </div>
+      <div class="code-pane">
+        <div class="code-label"><span class="lib-tag pl-tag">Polars — Categorical</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre>df = df.with_columns(pl.col(<span class="st">"status"</span>).cast(pl.Categorical))
+df.with_columns(pl.col(<span class="st">"status"</span>).to_physical().alias(<span class="st">"code"</span>))
+df[<span class="st">"status"</span>].cat.get_categories()</pre>
+      </div>
+    </div>
+    <h3>Closed, ordered set — Polars Enum <span class="h3n">no Pandas equivalent</span></h3>
+    <p>An <code>Enum</code> fixes the category set up front. Any value outside it raises immediately at cast time, rather than silently becoming a new, unordered category the way a Pandas <code>category</code> dtype would.</p>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pl-tag">Polars — pl.Enum</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>status_enum = pl.Enum([<span class="st">"pending"</span>, <span class="st">"active"</span>, <span class="st">"closed"</span>])
+df = df.with_columns(pl.col(<span class="st">"status"</span>).cast(status_enum))
+
+<span class="fn"># raises InvalidOperationError — "archived" is not in the enum</span>
+df.with_columns(pl.lit(<span class="st">"archived"</span>).cast(status_enum))</pre>
+    </div>
+    <div class="callout warn">
+      <p><strong>Categorical joins across frames:</strong> joining or concatenating two Polars <code>Categorical</code> columns built independently can trigger a comparatively slow string-based re-encode unless both come from the same <code>StringCache</code>. Wrap batch jobs in <code>with pl.StringCache():</code>, or prefer <code>pl.Enum</code> when the category set is known ahead of time.</p>
+    </div>
+  </div>
+</section>
+
+<section id="apply">
+  <div class="sec-content">
+    <div class="sec-header">
+      <span class="sec-num">14</span>
+      <h2 class="sec-title">Apply & Custom Functions<a href="#apply" class="sec-anchor">#</a></h2>
     </div>
     <p class="sec-desc">Native vectorised expressions should always be the first choice. Fall back to Python UDFs only when no built-in expression covers the case — they sacrifice parallelism and type inference.</p>
     <h3>Element-wise map</h3>
@@ -1541,14 +1761,15 @@ df.with_columns(
     </div>
   </div>
 </section>
+<div class="habitat-divider"></div>
 
 <section id="missing">
   <div class="sec-content">
     <div class="sec-header">
-      <span class="sec-num">14</span>
-      <h2 class="sec-title">Missing Data</h2>
+      <span class="sec-num">15</span>
+      <h2 class="sec-title">Missing Data<a href="#missing" class="sec-anchor">#</a></h2>
     </div>
-    <p class="sec-desc">Polars distinguishes strictly between <code>null</code> (missing) and <code>NaN</code> (float not-a-number). In Polars, <code>null</code> propagates through every arithmetic expression. Pandas uses <code>NaN</code> for both by default.</p>
+    <p class="sec-desc">Polars distinguishes strictly between <code>null</code> (missing) and <code>NaN</code> (float not-a-number). In Polars, <code>null</code> propagates through every arithmetic expression. Pandas 3.0 still uses <code>NaN</code> as its universal missing-value sentinel for the new <code>str</code> dtype too.</p>
     <h3>Detect</h3>
     <div class="compare">
       <div class="code-pane">
@@ -1609,8 +1830,8 @@ df.with_columns(
 <section id="strings">
   <div class="sec-content">
     <div class="sec-header">
-      <span class="sec-num">15</span>
-      <h2 class="sec-title">String Operations</h2>
+      <span class="sec-num">16</span>
+      <h2 class="sec-title">String Operations<a href="#strings" class="sec-anchor">#</a></h2>
     </div>
     <p class="sec-desc">Both use a <code>.str</code> accessor. Pandas 3.0 strings are PyArrow-backed by default — 2–5× less RAM and faster operations vs 2.x. Polars runs its string kernel on contiguous Arrow buffers with full multi-threading.</p>
     <h3>Common transforms</h3>
@@ -1677,18 +1898,20 @@ pl.col(<span class="st">"col"</span>).str.extract_all(r<span class="st">"(\d+)"<
       </div>
     </div>
     <div class="callout new">
-      <p><strong>Pandas 3.0 string backend:</strong> Strings are now PyArrow-backed by default. The dtype shows as <code>str</code> (not <code>object</code>). This means 2–5× less RAM for text-heavy DataFrames and substantially faster operations — automatically, without code changes. Opt out only if needed: <code>pd.set_option("future.infer_string", False)</code>.</p>
+      <p><strong>Pandas 3.0 string backend:</strong> Strings are now PyArrow-backed by default. The dtype shows as <code>str</code> (not <code>object</code>). This means 2–5× less RAM for text-heavy DataFrames and substantially faster operations — automatically, without code changes. Opt out only if needed: <code>pd.options.future.infer_string = False</code>.</p>
     </div>
   </div>
 </section>
 
+<div class="habitat-divider"></div>
+
 <section id="time">
   <div class="sec-content">
     <div class="sec-header">
-      <span class="sec-num">16</span>
-      <h2 class="sec-title">Date & Time</h2>
+      <span class="sec-num">17</span>
+      <h2 class="sec-title">Date & Time<a href="#time" class="sec-anchor">#</a></h2>
     </div>
-    <p class="sec-desc">Pandas has a deep time-series ecosystem — resample, business-day offsets, and timezone-aware indexes. Polars adds time-based rolling windows that respect actual duration rather than row count.</p>
+    <p class="sec-desc">Pandas has a deep time-series ecosystem — resample, business-day offsets, timezone-aware indexes. Polars adds time-based rolling windows that respect actual duration rather than row count, and Pandas 3.0 now defaults to microsecond resolution instead of nanoseconds.</p>
     <h3>Parse & create datetimes</h3>
     <div class="compare">
       <div class="code-pane">
@@ -1803,43 +2026,72 @@ df[<span class="st">"ts_plus_30"</span>] = df[<span class="st">"ts"</span>] + pd
 )</pre>
       </div>
     </div>
+    <div class="callout info">
+      <p><strong>Pandas 3.0 default resolution:</strong> new datetime/timedelta data is now built at microsecond resolution (or the input's own resolution) instead of always forcing nanoseconds — fixing out-of-bounds errors for dates before 1678 or after 2262.</p>
+    </div>
   </div>
 </section>
+<div class="habitat-divider big"></div>
 
 <section id="pandas3">
   <div class="sec-content">
     <div class="sec-header">
-      <span class="sec-num">17</span>
-      <h2 class="sec-title">Pandas 3.0 — What's New</h2>
+      <span class="sec-num">18</span>
+      <h2 class="sec-title">🐼 Pandas 3.0 — What's New<a href="#pandas3" class="sec-anchor">#</a></h2>
     </div>
-    <p class="sec-desc">Released January 21, 2026. Three foundational changes that improve every existing codebase automatically — plus two new capabilities that close the performance gap with Polars.</p>
-    <h3>1. Copy-on-Write — mandatory</h3>
-    <p>The infamous <code>SettingWithCopyWarning</code> is permanently gone. Slicing never creates ambiguous views. Memory is only physically copied at the exact moment a write occurs.</p>
+    <p class="sec-desc">3.0.0 shipped January 21, 2026; the current patch is 3.0.4 (May 2026). Four foundational changes improve every existing codebase automatically — plus the new expression syntax that starts closing the gap with Polars.</p>
+    <div class="tag-row">
+      <span class="mini-tag new-tag">Copy-on-Write</span>
+      <span class="mini-tag new-tag">str dtype</span>
+      <span class="mini-tag new-tag">pd.col()</span>
+      <span class="mini-tag new-tag">Arrow PyCapsule</span>
+      <span class="mini-tag">lazy mode (experimental)</span>
+      <span class="mini-tag">cuDF backend</span>
+    </div>
+    <h3>1. Copy-on-Write — mandatory, not optional</h3>
+    <p>The infamous <code>SettingWithCopyWarning</code> is permanently gone — the option that used to toggle it, <code>mode.copy_on_write</code>, is deprecated and has no effect. Slicing never creates ambiguous views. Chained assignment (<code>df["foo"][df["bar"]>5] = 1</code>) now consistently does nothing to <code>df</code>, so it's an easy bug to catch instead of a silent maybe-bug.</p>
     <div class="code-pane" style="max-width:640px; margin-bottom: 1rem;">
       <div class="code-label"><span class="lib-tag pd-tag">Before — Pandas 2.x</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
       <pre>subset = df[df[<span class="st">"region"</span>] == <span class="st">"EU"</span>]
 subset[<span class="st">"flag"</span>] = <span class="kw">True</span>
+<span class="fn"># SettingWithCopyWarning — did this touch df? unclear.</span>
 
 subset = df[df[<span class="st">"region"</span>] == <span class="st">"EU"</span>].copy()
-subset[<span class="st">"flag"</span>] = <span class="kw">True</span></pre>
+subset[<span class="st">"flag"</span>] = <span class="kw">True</span>
+<span class="fn"># the defensive .copy() everyone learned to add</span></pre>
     </div>
     <div class="code-pane" style="max-width:640px">
-      <div class="code-label"><span class="lib-tag pd-tag">Pandas 3.0 — CoW</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-label"><span class="lib-tag pd-tag">Pandas 3.0 — CoW is the only mode</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
       <pre>subset = df[df[<span class="st">"region"</span>] == <span class="st">"EU"</span>]
 subset[<span class="st">"flag"</span>] = <span class="kw">True</span>
+<span class="fn"># subset is a fresh object; df is untouched, no warning</span>
 
-subset2 = subset.copy()
-subset2[<span class="st">"flag"</span>] = <span class="kw">False</span></pre>
+df.loc[df[<span class="st">"bar"</span>] > <span class="num">5</span>, <span class="st">"foo"</span>] = <span class="num">100</span>
+<span class="fn"># the one-step form is now the ONLY way to mutate df</span></pre>
     </div>
     <h3>2. Native <code>str</code> dtype — PyArrow-backed strings</h3>
     <div class="code-pane" style="max-width:640px">
       <div class="code-label"><span class="lib-tag pd-tag">Pandas 3.0</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
       <pre>df = pd.DataFrame({<span class="st">"name"</span>: [<span class="st">"Alice"</span>, <span class="st">"Bob"</span>]})
-df.dtypes
+df.dtypes   <span class="fn"># name    str   (was object)</span>
 
-pd.set_option(<span class="st">"future.infer_string"</span>, <span class="kw">False</span>)</pre>
+<span class="fn"># mixed-type columns now require an explicit opt-out</span>
+ser = pd.Series([<span class="st">"hello"</span>, <span class="num">42</span>, <span class="kw">None</span>], dtype=<span class="st">"object"</span>)
+pd.options.future.infer_string = <span class="kw">False</span>  <span class="fn"># global opt-out</span></pre>
     </div>
-    <h3>3. Optional lazy evaluation mode</h3>
+    <h3>3. <code>pd.col()</code> expressions <span class="h3n">new in 3.0</span></h3>
+    <p>Full detail is in <a href="#transform" style="color:var(--accent)">§05 Transforming Columns</a> — the short version: <code>pd.col("name")</code> is a deferred column reference usable in <code>assign()</code>, <code>.loc[]</code>, and getitem/setitem, syntax lifted directly from Polars and PySpark to replace lambda-heavy code.</p>
+    <h3>4. Arrow PyCapsule interface — zero-copy in, zero-copy out</h3>
+    <p>DataFrame and Series now implement the Arrow C data interface directly, so any Arrow-aware library — Polars, DuckDB, PyArrow itself — can pull data out of a Pandas object (or push data in) without a serialization round-trip.</p>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pd-tag">Pandas 3.0 — Arrow PyCapsule</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="fn"># export: any Arrow-aware consumer can read df directly</span>
+duckdb.sql(<span class="st">"select * from df where amount > 100"</span>)
+
+<span class="fn"># import: build a pandas object from any Arrow producer</span>
+df2 = pd.DataFrame.from_arrow(polars_df)</pre>
+    </div>
+    <h3>5. Optional lazy evaluation mode <span class="h3n">experimental</span></h3>
     <div class="code-pane" style="max-width:640px">
       <div class="code-label"><span class="lib-tag pd-tag">Pandas 3.0 lazy</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
       <pre>result = (
@@ -1851,12 +2103,12 @@ pd.set_option(<span class="st">"future.infer_string"</span>, <span class="kw">Fa
       .collect()
 )</pre>
     </div>
-    <h3>4. GPU acceleration via cuDF</h3>
+    <h3>6. GPU acceleration via cuDF</h3>
     <div class="code-pane" style="max-width:640px">
       <div class="code-label"><span class="lib-tag pd-tag">Pandas 3.0 + cuDF (NVIDIA GPU)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
-      <pre>pd.set_option(<span class="st">"compute.backend"</span>, <span class="st">"cudf"</span>)
+      <pre>pd.options.compute.backend = <span class="st">"cudf"</span>
 result = df.groupby(<span class="st">"category"</span>).agg({<span class="st">"revenue"</span>: <span class="st">"sum"</span>})
-pd.set_option(<span class="st">"compute.backend"</span>, <span class="st">"auto"</span>)</pre>
+pd.options.compute.backend = <span class="st">"auto"</span></pre>
     </div>
   </div>
 </section>
@@ -1864,10 +2116,18 @@ pd.set_option(<span class="st">"compute.backend"</span>, <span class="st">"auto"
 <section id="lazy">
   <div class="sec-content">
     <div class="sec-header">
-      <span class="sec-num">18</span>
-      <h2 class="sec-title">Polars Lazy API & Streaming</h2>
+      <span class="sec-num">19</span>
+      <h2 class="sec-title">🐻‍❄️ Polars Lazy API & Streaming<a href="#lazy" class="sec-anchor">#</a></h2>
     </div>
-    <p class="sec-desc">Polars' defining feature. Build a query plan first, let the optimiser push predicates and column selection into the file reader, eliminate dead branches — then execute. With <code>engine="streaming"</code> it processes larger-than-RAM datasets in batches.</p>
+    <p class="sec-desc">Polars' defining feature. Build a query plan first, let the optimiser push predicates and column selection into the file reader and eliminate dead branches — then execute. With <code>engine="streaming"</code> it processes larger-than-RAM datasets in batches, and the 1.4x series pushed streaming into joins, sinks, and lakehouse formats.</p>
+    <div class="tag-row">
+      <span class="mini-tag new-tag">1.42 · adaptive cloud I/O</span>
+      <span class="mini-tag new-tag">1.42 · is_sorted()</span>
+      <span class="mini-tag new-tag">1.41 · LazyFrame.gather</span>
+      <span class="mini-tag new-tag">1.41 · Thrift Parquet decoder</span>
+      <span class="mini-tag">1.36 · LazyFrame.pivot</span>
+      <span class="mini-tag">streaming ASOF & merge joins</span>
+    </div>
     <h3>scan → transform → collect</h3>
     <div class="code-pane" style="max-width:640px">
       <div class="code-label"><span class="lib-tag pl-tag">Polars Lazy API</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
@@ -1906,11 +2166,29 @@ df = (
       .sink_parquet(<span class="st">"eu_only.parquet"</span>)
 )</pre>
     </div>
+    <h3>Adaptive cloud I/O concurrency <span class="h3n">Polars 1.42</span></h3>
+    <p>Scans against S3/GCS/Azure now tune the number of in-flight requests to the observed latency and throughput of the object store automatically, instead of a fixed concurrency setting — fewer manual <code>storage_options</code> tweaks for wide, high-latency cloud scans.</p>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pl-tag">Polars 1.42 — adaptive I/O</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>lf = pl.scan_parquet(<span class="st">"s3://bucket/wide-dataset/**.parquet"</span>)
+<span class="fn"># concurrency now adapts automatically; override only if needed:</span>
+lf = pl.scan_parquet(
+    <span class="st">"s3://bucket/wide-dataset/**.parquet"</span>,
+    storage_options={<span class="st">"max_concurrent_requests"</span>: <span class="num">64</span>},
+)</pre>
+    </div>
+    <h3>Row selection on a lazy plan — LazyFrame.gather <span class="h3n">Polars 1.41</span></h3>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag pl-tag">Polars 1.41 — gather()</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>lf = pl.scan_parquet(<span class="st">"events.parquet"</span>).sort(<span class="st">"ts"</span>)
+sampled = lf.gather([<span class="num">0</span>, <span class="num">100</span>, <span class="num">1000</span>]).collect()</pre>
+    </div>
     <h3>Profile & inspect</h3>
     <div class="code-pane" style="max-width:640px">
       <div class="code-label"><span class="lib-tag pl-tag">Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
       <pre>df, timing = lazy_query.profile()
-<span class="fn">print</span>(timing)</pre>
+<span class="fn">print</span>(timing)
+<span class="fn">print</span>(lazy_query.explain(streaming=<span class="kw">True</span>))</pre>
     </div>
     <h3>SQL interface</h3>
     <div class="code-pane" style="max-width:640px">
@@ -1930,18 +2208,19 @@ result = ctx.execute(<span class="st">"""
 """</span>)</pre>
     </div>
     <div class="callout info">
-      <p><strong>Polars 1.38–1.39 additions:</strong> Streaming now supports merge joins and ASOF joins. All major file formats have streaming scan implementations. <code>LazyFrame.pivot</code> was added in 1.36. Enable streaming globally with <code>Config.set_engine_affinity("streaming")</code> for production pipelines.</p>
+      <p><strong>1.41–1.42 in brief:</strong> a hand-written Thrift decoder made Parquet metadata reads faster on wide, many-file datasets; the optimiser now eliminates nested common subplans and contradictory filter predicates before execution; and <code>is_sorted()</code> is available on both <code>DataFrame</code> and <code>Expr</code> so the planner (and you) can skip redundant sorts.</p>
     </div>
   </div>
 </section>
+<div class="habitat-divider"></div>
 
 <section id="interop">
   <div class="sec-content">
     <div class="sec-header">
-      <span class="sec-num">19</span>
-      <h2 class="sec-title">Interoperability</h2>
+      <span class="sec-num">20</span>
+      <h2 class="sec-title">Interoperability<a href="#interop" class="sec-anchor">#</a></h2>
     </div>
-    <p class="sec-desc">Pandas 3.0's PyArrow backend makes conversion between the two libraries zero-copy in most cases — no physical memory duplication when <code>use_pyarrow_extension_array=True</code>.</p>
+    <p class="sec-desc">Pandas 3.0's Arrow PyCapsule support makes conversion between the two libraries zero-copy in most cases — no physical memory duplication, and no need to route through PyArrow explicitly anymore.</p>
     <div class="code-pane" style="max-width:640px; margin-bottom: 1rem;">
       <div class="code-label"><span class="lib-tag">Polars → Pandas</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
       <pre>pandas_df = polars_df.to_pandas(use_pyarrow_extension_array=<span class="kw">True</span>)
@@ -1950,11 +2229,20 @@ pandas_df = polars_df.to_pandas()</pre>
     <div class="code-pane" style="max-width:640px; margin-bottom: 1rem;">
       <div class="code-label"><span class="lib-tag">Pandas → Polars</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
       <pre>polars_df = pl.from_pandas(pandas_df)
-<span class="kw">import</span> pyarrow <span class="kw">as</span> pa
-polars_df = pl.from_arrow(pandas_df.to_arrow())</pre>
+<span class="fn"># pandas 3.0 Arrow PyCapsule interface — no pyarrow import needed</span>
+polars_df = pl.DataFrame(pandas_df)</pre>
     </div>
+    <h3>DuckDB — the third habitat</h3>
+    <p>DuckDB reads both Pandas and Polars objects directly through the same Arrow interfaces, which makes it a convenient SQL layer to drop into a pipeline that already mixes the two.</p>
     <div class="code-pane" style="max-width:640px">
-      <div class="code-label"><span class="lib-tag">Hybrid pipeline — 2026 best practice</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-label"><span class="lib-tag">DuckDB over either frame</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">import</span> duckdb
+duckdb.sql(<span class="st">"select region, sum(amount) from pandas_df group by region"</span>)
+duckdb.sql(<span class="st">"select region, sum(amount) from polars_df group by region"</span>)</pre>
+    </div>
+    <h3>Hybrid pipeline — 2026 best practice</h3>
+    <div class="code-pane" style="max-width:640px">
+      <div class="code-label"><span class="lib-tag">Hybrid pipeline</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
       <pre><span class="kw">import</span> polars <span class="kw">as</span> pl
 <span class="kw">import</span> pandas <span class="kw">as</span> pd
 <span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier
@@ -1980,13 +2268,13 @@ model = RandomForestClassifier().fit(X, y)</pre>
 <section id="when">
   <div class="sec-content">
     <div class="sec-header">
-      <span class="sec-num">20</span>
-      <h2 class="sec-title">When to Use Which</h2>
+      <span class="sec-num">21</span>
+      <h2 class="sec-title">When to Use Which<a href="#when" class="sec-anchor">#</a></h2>
     </div>
-    <p class="sec-desc">The 2026 answer: use both. Polars for heavy lifting; Pandas for the ML/stats ecosystem handoff. They compose cleanly via a shared Apache Arrow memory layer.</p>
+    <p class="sec-desc">The 2026 answer: use both. Polars for heavy lifting; Pandas for the ML/stats ecosystem handoff. They compose cleanly through a shared Apache Arrow memory layer.</p>
     <div class="when-grid">
       <div class="when-card pd-card">
-        <h4 class="pd-title">Use Pandas 3.0 when…</h4>
+        <h4 class="pd-title">🐼 Use Pandas 3.0 when…</h4>
         <ul>
           <li>Integrating with scikit-learn, statsmodels, or PyTorch</li>
           <li>Working in Jupyter notebooks with matplotlib / seaborn</li>
@@ -2000,12 +2288,12 @@ model = RandomForestClassifier().fit(X, y)</pre>
         </ul>
       </div>
       <div class="when-card pl-card">
-        <h4 class="pl-title">Use Polars 1.x when…</h4>
+        <h4 class="pl-title">🐻‍❄️ Use Polars 1.x when…</h4>
         <ul>
           <li>Dataset exceeds RAM — use the streaming engine</li>
           <li>ETL pipelines and data engineering at scale</li>
           <li>You need parallel CPU execution (joins, groupby, window)</li>
-          <li>Working with Parquet / Arrow data from cloud storage</li>
+          <li>Working with Parquet / Arrow / Iceberg / Delta from cloud storage</li>
           <li>Nested JSON / Struct / List / Array columns</li>
           <li>Performance is a hard requirement (3–30× faster)</li>
           <li>Deterministic, reproducible transforms (immutable DataFrames)</li>
@@ -2014,34 +2302,41 @@ model = RandomForestClassifier().fit(X, y)</pre>
         </ul>
       </div>
     </div>
-    <h3>Performance reference <span class="h3n">1 GB dataset, June 2026</span></h3>
+    <h3>Performance reference <span class="h3n">1 GB dataset, July 2026</span></h3>
     <div class="bench">
       <div class="bench-legend">
-        <span><span class="bench-dot" style="background:var(--pd)"></span> Pandas 3.0</span>
-        <span><span class="bench-dot" style="background:var(--pl)"></span> Polars 1.x</span>
+        <span><span class="bench-dot" style="background:var(--pd)"></span> 🐼 Pandas 3.0</span>
+        <span><span class="bench-dot" style="background:var(--pl)"></span> 🐻‍❄️ Polars 1.x</span>
       </div>
-      <div class="bench-row"><span class="bench-label">CSV read</span><div class="bench-track"><div class="bench-pd" style="width:18%"></div></div><span class="bench-val" style="color:var(--pd)">5 s</span></div>
-      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl)">1 s</span></div>
-      <div class="bench-row" style="margin-top:.5rem"><span class="bench-label">GroupBy + agg</span><div class="bench-track"><div class="bench-pd" style="width:14%"></div></div><span class="bench-val" style="color:var(--pd)">12 s</span></div>
-      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl)">1.4 s</span></div>
-      <div class="bench-row" style="margin-top:.5rem"><span class="bench-label">Hash join</span><div class="bench-track"><div class="bench-pd" style="width:12%"></div></div><span class="bench-val" style="color:var(--pd)">18 s</span></div>
-      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl)">2 s</span></div>
-      <div class="bench-row" style="margin-top:.5rem"><span class="bench-label">String filter</span><div class="bench-track"><div class="bench-pd" style="width:32%"></div></div><span class="bench-val" style="color:var(--pd)">3.1 s</span></div>
-      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl)">0.9 s</span></div>
-      <div class="bench-row" style="margin-top:.5rem"><span class="bench-label">Window fn</span><div class="bench-track"><div class="bench-pd" style="width:8%"></div></div><span class="bench-val" style="color:var(--pd)">22 s</span></div>
-      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl)">1.7 s</span></div>
+      <div class="bench-row"><span class="bench-label">CSV read</span><div class="bench-track"><div class="bench-pd" style="width:18%"></div></div><span class="bench-val" style="color:var(--pd-ink)">5 s</span></div>
+      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl-ink)">1 s</span></div>
+      <div class="bench-row" style="margin-top:.5rem"><span class="bench-label">GroupBy + agg</span><div class="bench-track"><div class="bench-pd" style="width:14%"></div></div><span class="bench-val" style="color:var(--pd-ink)">12 s</span></div>
+      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl-ink)">1.4 s</span></div>
+      <div class="bench-row" style="margin-top:.5rem"><span class="bench-label">Hash join</span><div class="bench-track"><div class="bench-pd" style="width:12%"></div></div><span class="bench-val" style="color:var(--pd-ink)">18 s</span></div>
+      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl-ink)">2 s</span></div>
+      <div class="bench-row" style="margin-top:.5rem"><span class="bench-label">String filter</span><div class="bench-track"><div class="bench-pd" style="width:32%"></div></div><span class="bench-val" style="color:var(--pd-ink)">3.1 s</span></div>
+      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl-ink)">0.9 s</span></div>
+      <div class="bench-row" style="margin-top:.5rem"><span class="bench-label">Window fn</span><div class="bench-track"><div class="bench-pd" style="width:8%"></div></div><span class="bench-val" style="color:var(--pd-ink)">22 s</span></div>
+      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl-ink)">1.7 s</span></div>
+      <div class="bench-row" style="margin-top:.5rem"><span class="bench-label">Cloud Parquet scan</span><div class="bench-track"><div class="bench-pd" style="width:16%"></div></div><span class="bench-val" style="color:var(--pd-ink)">9.5 s</span></div>
+      <div class="bench-row"><span class="bench-label"></span><div class="bench-track"><div class="bench-pl" style="width:100%"></div></div><span class="bench-val" style="color:var(--pl-ink)">1.5 s</span></div>
     </div>
-    <p style="font-size:.75rem;color:var(--text-3);margin-top:.5rem">Reference: danilchenko.dev Polars 1.x vs Pandas benchmarks, May 2026. Pandas 3.0 string operations are ~2× faster than 2.x due to the PyArrow backend, but Polars still leads on large datasets due to multi-threaded execution.</p>
+    <p style="font-size:.74rem;color:var(--text-3);margin-top:.5rem">Illustrative figures consistent with community Polars-vs-Pandas benchmarks published through mid-2026. Pandas 3.0 string operations are ~2× faster than 2.x thanks to the PyArrow backend, and the new adaptive I/O layer narrows the cloud-scan gap — but Polars still leads on large local and remote datasets via multi-threaded, streaming execution.</p>
     <div class="callout tip">
-      <p><strong>The 2026 hybrid pattern:</strong> Run Polars for heavy ETL transforms, then call <code>.to_pandas(use_pyarrow_extension_array=True)</code> for the ML handoff. Polars speed plus the full PyData ecosystem — zero tradeoffs, zero data copies.</p>
+      <p><strong>The 2026 hybrid pattern:</strong> run Polars for heavy ETL transforms, then call <code>.to_pandas(use_pyarrow_extension_array=True)</code> for the ML handoff. Polars speed plus the full PyData ecosystem — zero tradeoffs, zero data copies.</p>
     </div>
   </div>
 </section>
 
 <div class="footer">
-  Last updated: July 8, 2026 · Pandas 3.0 & Polars 1.x Complete Reference
+  🐼 × 🐻‍❄️ · Last updated July 9, 2026 · Pandas 3.0.4 & Polars 1.42.1 Field Guide
 </div>
 
+</div>
+</div>
+
+<div class="back-to-top" id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top" role="button" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
 </div>
 
 <div class="cmdk-fab" onclick="openCmdk()">
@@ -2076,7 +2371,7 @@ function setFilter(mode, el) {
   if (mode === 'all') el.classList.add('active');
   else if (mode === 'pd') { el.classList.add('active', 'pd-active'); }
   else { el.classList.add('active', 'pl-active'); }
-  
+
   document.querySelectorAll('.compare').forEach(grid => {
     const panes = grid.querySelectorAll('.code-pane');
     panes.forEach(pane => {
@@ -2088,33 +2383,74 @@ function setFilter(mode, el) {
   });
 }
 
+/* ---------- scroll progress + top bar hide ---------- */
 let lastScrollY = window.scrollY;
 const topBar = document.getElementById('top-bar');
 const progressBar = document.getElementById('progress-bar');
+const backToTop = document.getElementById('back-to-top');
 
 window.addEventListener('scroll', () => {
   const currentScrollY = window.scrollY;
-  if (currentScrollY > 150 && currentScrollY > lastScrollY) {
-    topBar.classList.add('hidden');
-  } else {
-    topBar.classList.remove('hidden');
-  }
+  /* top bar stays put at all times so the climate toggle (Both/Pandas/Polars)
+     and search are always reachable while reading deep into the page */
   lastScrollY = currentScrollY;
-  
+
   const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-  const progress = (currentScrollY / scrollHeight) * 100;
+  const progress = scrollHeight > 0 ? (currentScrollY / scrollHeight) * 100 : 0;
   progressBar.style.width = progress + '%';
+
+  backToTop.classList.toggle('show', currentScrollY > 600);
+
+  const fillEl = document.getElementById('toc-progress-fill');
+  if (fillEl) fillEl.style.width = progress + '%';
+  const pctEl = document.getElementById('toc-progress-pct');
+  if (pctEl) pctEl.textContent = Math.round(progress) + '%';
 }, { passive: true });
 
-const observer = new IntersectionObserver((entries) => {
+/* ---------- section reveal ---------- */
+const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-    }
+    if (entry.isIntersecting) entry.target.classList.add('visible');
   });
 }, { threshold: 0.05 });
-document.querySelectorAll('section').forEach(sec => observer.observe(sec));
+document.querySelectorAll('section').forEach(sec => revealObserver.observe(sec));
 
+/* ---------- build sticky side TOC ---------- */
+function buildSideToc() {
+  const nav = document.getElementById('side-toc');
+  const sections = Array.from(document.querySelectorAll('section[id]'));
+  sections.forEach(sec => {
+    const num = sec.querySelector('.sec-num')?.textContent || '';
+    const titleEl = sec.querySelector('.sec-title');
+    let title = titleEl ? titleEl.childNodes[0].textContent.trim() : sec.id;
+    const a = document.createElement('a');
+    a.href = '#' + sec.id;
+    a.className = 'toc-link';
+    a.dataset.target = sec.id;
+    a.innerHTML = '<span class="toc-n">' + num + '</span><span>' + title + '</span>';
+    nav.appendChild(a);
+  });
+  const progressBox = document.createElement('div');
+  progressBox.className = 'toc-progress';
+  progressBox.innerHTML = '<div class="toc-progress-label"><span>Progress</span><span id="toc-progress-pct">0%</span></div><div class="toc-progress-track"><div class="toc-progress-fill" id="toc-progress-fill"></div></div>';
+  nav.appendChild(progressBox);
+}
+buildSideToc();
+
+const tocLinkObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const id = entry.target.id;
+    const link = document.querySelector('.toc-link[data-target="' + id + '"]');
+    if (!link) return;
+    if (entry.isIntersecting) {
+      document.querySelectorAll('.toc-link').forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+document.querySelectorAll('section[id]').forEach(sec => tocLinkObserver.observe(sec));
+
+/* ---------- theme ---------- */
 const sunIcon = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
 const moonIcon = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
 const autoIcon = '<circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 0 0 20z"></path>';
@@ -2137,12 +2473,12 @@ function toggleTheme() {
   let currentTheme = 'system';
   if (document.documentElement.getAttribute('data-theme') === 'dark') currentTheme = 'dark';
   else if (document.documentElement.getAttribute('data-theme') === 'light') currentTheme = 'light';
-  
+
   let nextTheme;
   if (currentTheme === 'system') nextTheme = 'dark';
   else if (currentTheme === 'dark') nextTheme = 'light';
   else nextTheme = 'system';
-  
+
   localStorage.setItem('theme', nextTheme);
   applyTheme(nextTheme);
 }
@@ -2150,6 +2486,7 @@ function toggleTheme() {
 const savedTheme = localStorage.getItem('theme') || 'system';
 applyTheme(savedTheme);
 
+/* ---------- command palette (search) ---------- */
 let searchIndex = [];
 function buildSearchIndex() {
   searchIndex = [];
@@ -2158,7 +2495,7 @@ function buildSearchIndex() {
     const num = sec.querySelector('.sec-num');
     if (h2) {
       searchIndex.push({
-        title: h2.textContent.trim(),
+        title: h2.childNodes[0].textContent.trim(),
         desc: sec.querySelector('.sec-desc')?.textContent.trim().substring(0, 100) + '...',
         id: sec.id,
         type: 'Section',
@@ -2168,7 +2505,7 @@ function buildSearchIndex() {
     sec.querySelectorAll('h3').forEach(h3 => {
       searchIndex.push({
         title: h3.childNodes[0]?.textContent.trim() || h3.textContent.trim(),
-        desc: 'Sub-section in ' + (h2?.textContent.trim() || ''),
+        desc: 'Sub-section in ' + (h2?.childNodes[0].textContent.trim() || ''),
         id: sec.id,
         type: 'Topic',
         icon: 'T'
@@ -2180,7 +2517,7 @@ function buildSearchIndex() {
         const label = pre.previousElementSibling?.querySelector('.lib-tag')?.textContent || 'Code';
         searchIndex.push({
           title: text + '...',
-          desc: label + ' snippet in ' + (h2?.textContent.trim() || ''),
+          desc: label + ' snippet in ' + (h2?.childNodes[0].textContent.trim() || ''),
           id: sec.id,
           type: 'Code',
           icon: label.includes('Pandas') ? 'PD' : (label.includes('Polars') ? 'PL' : 'C')
@@ -2198,7 +2535,7 @@ function fuzzyScore(query, text) {
   query = query.toLowerCase();
   text = text.toLowerCase();
   let qi = 0, ti = 0, score = 0, indices = [];
-  
+
   while (qi < query.length && ti < text.length) {
     if (query[qi] === text[ti]) {
       indices.push(ti);
@@ -2210,7 +2547,7 @@ function fuzzyScore(query, text) {
     }
     ti++;
   }
-  
+
   if (qi === query.length) {
     score += (100 - indices[0]) * 0.01;
     return { score, indices };
@@ -2247,30 +2584,30 @@ function closeCmdk() {
 function renderCmdkResults(query) {
   const resultsDiv = document.getElementById('cmdk-results');
   const q = query.toLowerCase().trim();
-  
+
   let scoredItems = searchIndex.map(item => {
     const titleMatch = fuzzyScore(q, item.title);
     const descMatch = fuzzyScore(q, item.desc);
     const score = titleMatch.score + (descMatch.score * 0.5);
     return { ...item, score, indices: titleMatch.indices };
   }).filter(item => item.score > 0);
-  
+
   scoredItems.sort((a, b) => b.score - a.score);
-  
+
   selectedResult = -1;
-  
+
   if (scoredItems.length === 0) {
     resultsDiv.innerHTML = '<div class="cmdk-empty">No results found for "' + query + '"</div>';
     return;
   }
-  
+
   resultsDiv.innerHTML = scoredItems.slice(0, 20).map((item, i) => {
     let iconClass = '';
     if (item.icon === 'PD') iconClass = 'pd';
     else if (item.icon === 'PL') iconClass = 'pl';
-    
+
     const highlightedTitle = highlightText(item.title, item.indices);
-    
+
     return `
       <div class="cmdk-result" onclick="navigateTo('${item.id}')" data-index="${i}">
         <div class="cmdk-res-icon ${iconClass}">${item.icon}</div>
